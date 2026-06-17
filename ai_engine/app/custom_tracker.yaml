@@ -1,0 +1,19 @@
+# Custom BoT-SORT tracker configuration optimized for low-light night conditions and static security cameras
+# Docs: https://docs.ultralytics.com/modes/track/
+
+tracker_type: botsort # (str) Tracker backend: botsort|bytetrack; choose botsort to enable BoT-SORT features
+track_high_thresh: 0.12 # (float) First-stage match threshold; lower from 0.25 to keep weak detections at night
+track_low_thresh: 0.05 # (float) Second-stage threshold; lower from 0.1 to recover faint objects at night
+new_track_thresh: 0.12 # (float) Start a new track if no match >= this; lower from 0.25 to establish tracks faster
+track_buffer: 90 # (int) Frames to keep lost tracks alive; raise from 30 to prevent losing tracking on occlusion/darkness
+match_thresh: 0.8 # (float) Association similarity threshold (IoU/cost)
+fuse_score: True # (bool) Fuse detection score with motion/IoU for matching
+
+# BoT-SORT specifics
+gmc_method: none # (str) Global motion compensation: set to 'none' because security cameras are static. Saves CPU/GPU.
+
+# ReID model related thresh
+proximity_thresh: 0.5 # (float) Min IoU to consider tracks proximate for ReID
+appearance_thresh: 0.8 # (float) Min appearance similarity for ReID
+with_reid: False # (bool) Disable ReID to save performance
+model: auto

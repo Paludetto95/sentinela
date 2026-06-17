@@ -1,0 +1,43 @@
+# Executáveis grandes e arquivos externos
+cloudflared.exe
+
+# Pesos do YOLO (modelos de detecção)
+*.pt
+
+# Python caches e compilados
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+.pytest_cache/
+.ipynb_checkpoints/
+
+# Node/Next.js (Frontend)
+node_modules/
+.next/
+out/
+build/
+.vercel/
+
+# Ambientes e arquivos locais/privados
+.env
+.env.local
+.env.development.local
+.env.test.local
+.env.production.local
+.env.env
+
+# Logs
+*.log
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+
+# Editores de código
+.vscode/
+.idea/
+*.suo
+*.ntvs*
+*.njsproj
+*.sln
+*.swp

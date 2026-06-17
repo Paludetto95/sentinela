@@ -1,0 +1,30 @@
+# MediaMTX configuration
+api: yes
+apiAddress: :9997
+authMethod: internal
+authInternalUsers:
+  - user: admin
+    pass: sentinel_admin_pass
+    permissions:
+      - action: api
+  - user: any
+    permissions:
+      - action: read
+      - action: publish
+
+rtsp: yes
+rtspAddress: :8554
+protocols: [udp, multicast, tcp]
+
+webrtc: yes
+webrtcAddress: :8889
+webrtcLocalUDPAddress: :8189
+webrtcICEHostNAT1To1IPs: [127.0.0.1, 192.168.0.18]
+webrtcAllowOrigins: [ '*' ]
+
+hls: yes
+hlsAddress: :8888
+
+paths:
+  all:
+    source: publisher
