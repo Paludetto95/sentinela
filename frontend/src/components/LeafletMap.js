@@ -37,9 +37,36 @@ export default function LeafletMap({ cameras = [], events = [] }) {
     const defaultLat = -23.5505;
     const defaultLng = -46.6333;
 
-    // Initialize map
+    // Initialize map with default view (Sao Paulo)
     const map = L.map(mapContainerRef.current).setView([defaultLat, defaultLng], 13);
     mapRef.current = map;
+
+    // Centering map on user location using Geolocation API
+    if (typeof window !== "undefined" && navigator.geolocation) {
+      navigator.geolocation.getCurrentPosition(
+        (position) => {
+          const lat = position.coords.latitude;
+          const lng = position.coords.longitude;
+          map.setView([lat, lng], 13);
+
+          // Add a custom marker indicating user's location
+          const userIcon = L.divIcon({
+            className: "custom-marker-user",
+            html: `<div style="background:#10b981; width:18px; height:18px; border-radius:50%; border:2px solid #fff; box-shadow:0 0 10px rgba(16,185,129,0.8); display:flex; align-items:center; justify-content:center;"><span style="width:8px; height:8px; background:#fff; border-radius:50%;"></span></div>`,
+            iconSize: [18, 18],
+            iconAnchor: [9, 9]
+          });
+
+          L.marker([lat, lng], { icon: userIcon })
+            .bindPopup('<div style="color:#000; font-family:sans-serif; font-weight:bold;">Sua Localização</div>')
+            .addTo(map);
+        },
+        (err) => {
+          console.warn("Erro ao obter geolocalização do usuário:", err);
+        },
+        { enableHighAccuracy: true, timeout: 5000, maximumAge: 0 }
+      );
+    }
 
     // Add Dark Mode Style Map Layer (CartoDB Dark Matter fits Verkada/Tesla premium dark UI)
     L.tileLayer("https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png", {
