@@ -6,7 +6,7 @@ import time
 
 # Configurations
 WEBCAM_INDEX = 0  # 0 is usually the built-in webcam
-STREAM_PATH = "webcam"  # Access URL will be rtsp://mediamtx:8554/webcam
+STREAM_PATH = "56f74236-5658-4bd7-b7fa-34caf5e847fe"  # ID da câmera ZV-E10 no banco de dados
 RTMP_URL = f"rtmp://localhost:1935/{STREAM_PATH}"
 
 def check_requirements():
