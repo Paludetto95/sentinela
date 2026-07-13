@@ -90,6 +90,18 @@ def create_camera(
         db.commit()
         db.refresh(db_camera)
         print(f"DEBUG: Câmera salva no banco de dados com ID: {db_camera.id}")
+
+        # If it is a publisher stream (webcam), ensure the path matches the database camera ID
+        if "source=publisher" in db_camera.rtsp_url.lower():
+            import re
+            match_pub = re.match(r'^(rtsp://[^/]+/)([^?]+)(\?source=publisher.*)$', db_camera.rtsp_url)
+            if match_pub:
+                db_camera.rtsp_url = f"{match_pub.group(1)}{db_camera.id}{match_pub.group(3)}"
+            else:
+                db_camera.rtsp_url = f"rtsp://mediamtx:8554/{db_camera.id}?source=publisher"
+            db.commit()
+            db.refresh(db_camera)
+            print(f"DEBUG: RTSP URL da webcam corrigida para: {db_camera.rtsp_url}")
         
         # Sync with MediaMTX using the camera ID as path name (only for non-HTTP streams)
         sync_result = True

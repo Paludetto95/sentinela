@@ -1093,26 +1093,6 @@ export default function DashboardPage() {
       {/* HEADER NAVBAR */}
       <header style={styles.navbar} className="glass-panel">
         <div style={styles.navBrand}>
-          {isMobile && (
-            <button 
-              onClick={() => setSidebarOpen(true)}
-              style={{
-                background: "none",
-                border: "none",
-                color: "#fff",
-                cursor: "pointer",
-                padding: "8px",
-                borderRadius: "6px",
-                backgroundColor: "rgba(255,255,255,0.05)",
-                display: "flex",
-                alignItems: "center",
-                justifyContent: "center",
-                marginRight: "8px"
-              }}
-            >
-              <Menu size={20} />
-            </button>
-          )}
           <Shield size={24} color="#6366f1" />
           <h3 style={styles.navTitle}>SENTINEL AI</h3>
           {!isMobile && (
@@ -1176,83 +1156,67 @@ export default function DashboardPage() {
           />
         )}
 
-        {/* SIDEBAR TABS */}
-        <aside style={responsiveSidebarStyle} className="glass-panel">
-          {isMobile && (
-            <div style={{ display: "flex", justifyContent: "flex-end", marginBottom: "12px" }}>
+        {/* SIDEBAR TABS (Only shown on Desktop) */}
+        {!isMobile && (
+          <aside style={styles.sidebar} className="glass-panel">
+            <nav style={styles.sidebarNav}>
               <button 
-                onClick={() => setSidebarOpen(false)}
-                style={{
-                  background: "none",
-                  border: "none",
-                  color: "#9ca3af",
-                  fontSize: "24px",
-                  cursor: "pointer",
-                  padding: "4px 8px",
-                  lineHeight: "1"
-                }}
+                onClick={() => handleTabClick("monitoramento")} 
+                style={{...styles.sidebarBtn, ...(activeTab === "monitoramento" ? styles.sidebarBtnActive : {})}}
               >
-                &times;
+                <Camera size={18} />
+                <span>Central Live</span>
               </button>
-            </div>
-          )}
-          <nav style={styles.sidebarNav}>
-            <button 
-              onClick={() => handleTabClick("monitoramento")} 
-              style={{...styles.sidebarBtn, ...(activeTab === "monitoramento" ? styles.sidebarBtnActive : {})}}
-            >
-              <Camera size={18} />
-              <span>Central Live</span>
-            </button>
-            <button 
-              onClick={() => handleTabClick("mapa")} 
-              style={{...styles.sidebarBtn, ...(activeTab === "mapa" ? styles.sidebarBtnActive : {})}}
-            >
-              <Map size={18} />
-              <span>Mapa</span>
-            </button>
-            
-            <button 
-              onClick={() => handleTabClick("ocorrencias")} 
-              style={{...styles.sidebarBtn, ...(activeTab === "ocorrencias" ? styles.sidebarBtnActive : {})}}
-            >
-              <AlertTriangle size={18} />
-              <span>Ocorrências</span>
-              {stats.critical_unresolved_count > 0 && (
-                <span style={styles.alertCounter}>{stats.critical_unresolved_count}</span>
+              <button 
+                onClick={() => handleTabClick("mapa")} 
+                style={{...styles.sidebarBtn, ...(activeTab === "mapa" ? styles.sidebarBtnActive : {})}}
+              >
+                <Map size={18} />
+                <span>Mapa</span>
+              </button>
+              
+              <button 
+                onClick={() => handleTabClick("ocorrencias")} 
+                style={{...styles.sidebarBtn, ...(activeTab === "ocorrencias" ? styles.sidebarBtnActive : {})}}
+              >
+                <AlertTriangle size={18} />
+                <span>Ocorrências</span>
+                {stats.critical_unresolved_count > 0 && (
+                  <span style={styles.alertCounter}>{stats.critical_unresolved_count}</span>
+                )}
+              </button>
+
+              <button 
+                onClick={() => handleTabClick("monitorar_vaga")} 
+                style={{...styles.sidebarBtn, ...(activeTab === "monitorar_vaga" ? styles.sidebarBtnActive : {})}}
+              >
+                <Car size={18} />
+                <span>Monitorar Vaga</span>
+              </button>
+
+              <button 
+                onClick={() => handleTabClick("cadastros")} 
+                style={{...styles.sidebarBtn, ...(activeTab === "cadastros" ? styles.sidebarBtnActive : {})}}
+              >
+                <Users size={18} />
+                <span>Cadastros & Painel</span>
+              </button>
+
+              {role in { admin_condominio: 1, administradora: 1 } && (
+                <button 
+                  onClick={() => handleTabClick("faturamento")} 
+                  style={{...styles.sidebarBtn, ...(activeTab === "faturamento" ? styles.sidebarBtnActive : {})}}
+                >
+                  <CreditCard size={18} />
+                  <span>Assinatura</span>
+                </button>
               )}
-            </button>
-
-            <button 
-              onClick={() => handleTabClick("monitorar_vaga")} 
-              style={{...styles.sidebarBtn, ...(activeTab === "monitorar_vaga" ? styles.sidebarBtnActive : {})}}
-            >
-              <Car size={18} />
-              <span>Monitorar Vaga</span>
-            </button>
-
-            <button 
-              onClick={() => handleTabClick("cadastros")} 
-              style={{...styles.sidebarBtn, ...(activeTab === "cadastros" ? styles.sidebarBtnActive : {})}}
-            >
-              <Users size={18} />
-              <span>Cadastros & Painel</span>
-            </button>
-
-            {role in { admin_condominio: 1, administradora: 1 } && (
-              <button 
-                onClick={() => handleTabClick("faturamento")} 
-                style={{...styles.sidebarBtn, ...(activeTab === "faturamento" ? styles.sidebarBtnActive : {})}}
-              >
-                <CreditCard size={18} />
-                <span>Assinatura</span>
-              </button>
-            )}
-          </nav>
-        </aside>
+            </nav>
+          </aside>
+        )}
 
         {/* MAIN PANEL CONTENT */}
-        <main style={styles.mainPanel}>
+        <main style={{ ...styles.mainPanel, paddingBottom: isMobile ? "80px" : "4px" }}>
           {apiError && <div style={styles.errorBanner}>{apiError}</div>}
 
           {/* TAB 1: MONITORAMENTO CENTRAL */}
@@ -1405,106 +1369,162 @@ export default function DashboardPage() {
                 </div>
               </div>
 
-              <div style={styles.eventsWrapper}>
-                <div style={styles.tableCard} className="glass-panel">
-                  <table style={styles.table}>
-                    <thead>
-                      <tr style={styles.tr}>
-                        <th style={{ ...styles.th, width: "40px", textAlign: "center" }}>
-                          <input 
-                            type="checkbox" 
-                            checked={filteredEvents.length > 0 && selectedEventIds.length === filteredEvents.length}
-                            onChange={(e) => {
-                              if (e.target.checked) {
-                                setSelectedEventIds(filteredEvents.map(evt => evt.id));
-                              } else {
-                                setSelectedEventIds([]);
-                              }
-                            }}
-                            style={{ cursor: "pointer" }}
-                          />
-                        </th>
-                        <th style={styles.th}>Data/Hora</th>
-                        <th style={styles.th}>Objeto</th>
-                        <th style={styles.th}>Tipo de Alerta</th>
-                        <th style={styles.th}>Risco</th>
-                        <th style={styles.th}>Status</th>
-                        <th style={styles.th}>Ação</th>
-                      </tr>
-                    </thead>
-                    <tbody>
+              {isMobile ? (
+                    <div style={{ display: "flex", flexDirection: "column", gap: "12px" }}>
                       {filteredEvents.map((evt) => (
-                        <tr key={evt.id} style={{ ...styles.tr, backgroundColor: selectedEventIds.includes(evt.id) ? "rgba(239, 68, 68, 0.05)" : "transparent" }}>
-                          <td style={{ ...styles.td, textAlign: "center" }}>
-                            <input 
-                              type="checkbox" 
-                              checked={selectedEventIds.includes(evt.id)}
-                              onChange={(e) => {
-                                if (e.target.checked) {
-                                  setSelectedEventIds([...selectedEventIds, evt.id]);
-                                } else {
-                                  setSelectedEventIds(selectedEventIds.filter(id => id !== evt.id));
-                                }
-                              }}
-                              style={{ cursor: "pointer" }}
-                            />
-                          </td>
-                          <td style={styles.td}>
-                            {new Date(evt.created_at).toLocaleString("pt-BR")}
-                          </td>
-                          <td style={styles.td}>
-                            <span style={styles.objectLabel}>{evt.object_type.toUpperCase()}</span>
-                          </td>
-                          <td style={styles.td}>{evt.event_type}</td>
-                          <td style={styles.td}>
-                            <span className={`badge badge-${evt.risk_level}`}>
-                              {evt.risk_level.toUpperCase()} ({evt.risk_score})
+                        <div key={evt.id} style={{
+                          background: "rgba(255, 255, 255, 0.03)",
+                          border: "1px solid rgba(255, 255, 255, 0.08)",
+                          borderRadius: "12px",
+                          padding: "16px",
+                          display: "flex",
+                          flexDirection: "column",
+                          gap: "10px",
+                          boxShadow: "0 4px 12px rgba(0,0,0,0.2)"
+                        }}>
+                          <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
+                            <span style={{ fontSize: "11px", color: "var(--text-secondary)" }}>
+                              🕒 {new Date(evt.created_at).toLocaleString("pt-BR")}
                             </span>
-                          </td>
-                          <td style={styles.td}>
-                            {evt.is_resolved ? (
-                              <span style={{ color: "var(--success)" }}>✅ Resolvido</span>
-                            ) : (
-                              <span style={{ color: "var(--danger)" }}>🚨 Ativo</span>
-                            )}
-                          </td>
-                          <td style={styles.td}>
-                            <div style={{ display: "flex", gap: "8px", alignItems: "center" }}>
+                            <span className={`badge badge-${evt.risk_level}`} style={{ fontSize: "11px" }}>
+                              {evt.risk_level.toUpperCase()}
+                            </span>
+                          </div>
+                          <div style={{ display: "flex", alignItems: "center", gap: "8px" }}>
+                            <span style={styles.objectLabel}>{evt.object_type.toUpperCase()}</span>
+                            <span style={{ color: "#fff", fontWeight: "600", fontSize: "14px" }}>{evt.event_type}</span>
+                          </div>
+                          <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", borderTop: "1px solid rgba(255, 255, 255, 0.06)", paddingTop: "10px" }}>
+                            <div>
+                              {evt.is_resolved ? (
+                                <span style={{ color: "var(--success)", fontSize: "13px" }}>✅ Resolvido</span>
+                              ) : (
+                                <span style={{ color: "var(--danger)", fontSize: "13px" }}>🚨 Ativo</span>
+                              )}
+                            </div>
+                            <div style={{ display: "flex", gap: "8px" }}>
                               <button 
                                 onClick={() => setViewingEvent(evt)} 
                                 style={styles.btnActionView}
                               >
                                 👁 Ver
                               </button>
-                              {role !== "morador" && (
-                                !evt.is_resolved ? (
-                                  <button 
-                                    onClick={() => setResolvingEventId(evt.id)} 
-                                    style={styles.btnActionResolve}
-                                  >
-                                    Resolver
-                                  </button>
-                                ) : (
-                                  <span style={styles.textNotes} title={evt.resolution_notes}>
-                                    Resolvido
-                                  </span>
-                                )
+                              {role !== "morador" && !evt.is_resolved && (
+                                <button 
+                                  onClick={() => setResolvingEventId(evt.id)} 
+                                  style={styles.btnActionResolve}
+                                >
+                                  Resolver
+                                </button>
                               )}
                             </div>
-                          </td>
-                        </tr>
+                          </div>
+                        </div>
                       ))}
                       {filteredEvents.length === 0 && (
-                        <tr>
-                          <td colSpan={6} style={styles.emptyTableTd}>
-                            Nenhum alerta ou ocorrência registrada até o momento.
-                          </td>
-                        </tr>
+                        <div style={{ textAlign: "center", padding: "40px", color: "var(--text-muted)" }}>
+                          Nenhuma ocorrência registrada até o momento.
+                        </div>
                       )}
-                    </tbody>
-                  </table>
-                </div>
-              </div>
+                    </div>
+                  ) : (
+                    <table style={styles.table}>
+                      <thead>
+                        <tr style={styles.tr}>
+                          <th style={{ ...styles.th, width: "40px", textAlign: "center" }}>
+                            <input 
+                              type="checkbox" 
+                              checked={filteredEvents.length > 0 && selectedEventIds.length === filteredEvents.length}
+                              onChange={(e) => {
+                                if (e.target.checked) {
+                                  setSelectedEventIds(filteredEvents.map(evt => evt.id));
+                                } else {
+                                  setSelectedEventIds([]);
+                                }
+                              }}
+                              style={{ cursor: "pointer" }}
+                            />
+                          </th>
+                          <th style={styles.th}>Data/Hora</th>
+                          <th style={styles.th}>Objeto</th>
+                          <th style={styles.th}>Tipo de Alerta</th>
+                          <th style={styles.th}>Risco</th>
+                          <th style={styles.th}>Status</th>
+                          <th style={styles.th}>Ação</th>
+                        </tr>
+                      </thead>
+                      <tbody>
+                        {filteredEvents.map((evt) => (
+                          <tr key={evt.id} style={{ ...styles.tr, backgroundColor: selectedEventIds.includes(evt.id) ? "rgba(239, 68, 68, 0.05)" : "transparent" }}>
+                            <td style={{ ...styles.td, textAlign: "center" }}>
+                              <input 
+                                type="checkbox" 
+                                checked={selectedEventIds.includes(evt.id)}
+                                onChange={(e) => {
+                                  if (e.target.checked) {
+                                    setSelectedEventIds([...selectedEventIds, evt.id]);
+                                  } else {
+                                    setSelectedEventIds(selectedEventIds.filter(id => id !== evt.id));
+                                  }
+                                }}
+                                style={{ cursor: "pointer" }}
+                              />
+                            </td>
+                            <td style={styles.td}>
+                              {new Date(evt.created_at).toLocaleString("pt-BR")}
+                            </td>
+                            <td style={styles.td}>
+                              <span style={styles.objectLabel}>{evt.object_type.toUpperCase()}</span>
+                            </td>
+                            <td style={styles.td}>{evt.event_type}</td>
+                            <td style={styles.td}>
+                              <span className={`badge badge-${evt.risk_level}`}>
+                                {evt.risk_level.toUpperCase()} ({evt.risk_score})
+                              </span>
+                            </td>
+                            <td style={styles.td}>
+                              {evt.is_resolved ? (
+                                <span style={{ color: "var(--success)" }}>✅ Resolvido</span>
+                              ) : (
+                                <span style={{ color: "var(--danger)" }}>🚨 Ativo</span>
+                              )}
+                            </td>
+                            <td style={styles.td}>
+                              <div style={{ display: "flex", gap: "8px", alignItems: "center" }}>
+                                <button 
+                                  onClick={() => setViewingEvent(evt)} 
+                                  style={styles.btnActionView}
+                                >
+                                  👁 Ver
+                                </button>
+                                {role !== "morador" && (
+                                  !evt.is_resolved ? (
+                                    <button 
+                                      onClick={() => setResolvingEventId(evt.id)} 
+                                      style={styles.btnActionResolve}
+                                    >
+                                      Resolver
+                                    </button>
+                                  ) : (
+                                    <span style={styles.textNotes} title={evt.resolution_notes}>
+                                      Resolvido
+                                    </span>
+                                  )
+                                )}
+                              </div>
+                            </td>
+                          </tr>
+                        ))}
+                        {filteredEvents.length === 0 && (
+                          <tr>
+                            <td colSpan={7} style={styles.emptyTableTd}>
+                              Nenhum alerta ou ocorrência registrada até o momento.
+                            </td>
+                          </tr>
+                        )}
+                      </tbody>
+                    </table>
+                  )}
 
               {/* Event Details and Media Modal */}
               {viewingEvent && (
@@ -1745,43 +1765,78 @@ export default function DashboardPage() {
                     </div>
 
                     <div style={styles.tableCard} className="glass-panel">
-                       <h3 style={styles.formTitle}>Condomínios Ativos</h3>
-                      <table style={styles.table}>
-                        <thead>
-                          <tr style={styles.tr}>
-                            <th style={styles.th}>Nome / Torres</th>
-                            <th style={styles.th}>CNPJ</th>
-                            <th style={styles.th}>Cidade</th>
-                            <th style={styles.th}>Status</th>
-                            <th style={styles.th}>Ações</th>
-                          </tr>
-                        </thead>
-                        <tbody>
+                      <h3 style={styles.formTitle}>Condomínios Cadastrados</h3>
+                      {isMobile ? (
+                        <div style={{ display: "flex", flexDirection: "column", gap: "12px" }}>
                           {condos.map((c) => (
-                            <tr key={c.id} style={styles.tr}>
-                              <td style={styles.td}>
-                                <div style={{ fontWeight: "600" }}>{c.name}</div>
-                                {c.towers && c.towers.length > 0 && (
-                                  <div style={{ fontSize: "11px", color: "#9ca3af", marginTop: "2px" }}>
-                                    🏢 Torres: {c.towers.join(", ")}
-                                  </div>
-                                )}
-                              </td>
-                              <td style={styles.td}>{c.cnpj}</td>
-                              <td style={styles.td}>{c.city} - {c.state}</td>
-                              <td style={styles.td}>💚 Ativo</td>
-                              <td style={styles.td}>
+                            <div key={c.id} style={{
+                              background: "rgba(255, 255, 255, 0.03)",
+                              border: "1px solid rgba(255, 255, 255, 0.08)",
+                              borderRadius: "12px",
+                              padding: "16px",
+                              display: "flex",
+                              flexDirection: "column",
+                              gap: "8px"
+                            }}>
+                              <div style={{ fontWeight: "600", color: "#fff" }}>{c.name}</div>
+                              {c.towers && c.towers.length > 0 && (
+                                <div style={{ fontSize: "12px", color: "#9ca3af" }}>
+                                  🏢 Torres: {c.towers.join(", ")}
+                                </div>
+                              )}
+                              <div style={{ fontSize: "12px", color: "var(--text-secondary)" }}>
+                                CNPJ: {c.cnpj} | {c.city} - {c.state}
+                              </div>
+                              <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginTop: "4px" }}>
+                                <span style={{ color: "#10b981", fontSize: "12px" }}>💚 Ativo</span>
                                 <button
                                   onClick={() => { setEditingCondo({...c, towersInput: c.towers ? c.towers.join(", ") : ""}); setCondoError(""); }}
                                   style={{ background: "rgba(59,130,246,0.2)", border: "1px solid #3b82f6", color: "#60a5fa", borderRadius: "6px", padding: "4px 10px", cursor: "pointer", fontSize: "12px" }}
                                 >
                                   ✏️ Editar
                                 </button>
-                              </td>
-                            </tr>
+                              </div>
+                            </div>
                           ))}
-                        </tbody>
-                      </table>
+                        </div>
+                      ) : (
+                        <table style={styles.table}>
+                          <thead>
+                            <tr style={styles.tr}>
+                              <th style={styles.th}>Nome / Torres</th>
+                              <th style={styles.th}>CNPJ</th>
+                              <th style={styles.th}>Cidade</th>
+                              <th style={styles.th}>Status</th>
+                              <th style={styles.th}>Ações</th>
+                            </tr>
+                          </thead>
+                          <tbody>
+                            {condos.map((c) => (
+                              <tr key={c.id} style={styles.tr}>
+                                <td style={styles.td}>
+                                  <div style={{ fontWeight: "600" }}>{c.name}</div>
+                                  {c.towers && c.towers.length > 0 && (
+                                    <div style={{ fontSize: "11px", color: "#9ca3af", marginTop: "2px" }}>
+                                      🏢 Torres: {c.towers.join(", ")}
+                                    </div>
+                                  )}
+                                </td>
+                                <td style={styles.td}>{c.cnpj}</td>
+                                <td style={styles.td}>{c.city} - {c.state}</td>
+                                <td style={styles.td}>💚 Ativo</td>
+                                <td style={styles.td}>
+                                  <button
+                                    onClick={() => { setEditingCondo({...c, towersInput: c.towers ? c.towers.join(", ") : ""}); setCondoError(""); }}
+                                    style={{ background: "rgba(59,130,246,0.2)", border: "1px solid #3b82f6", color: "#60a5fa", borderRadius: "6px", padding: "4px 10px", cursor: "pointer", fontSize: "12px" }}
+                                  >
+                                    ✏️ Editar
+                                  </button>
+                                </td>
+                              </tr>
+                            ))}
+                          </tbody>
+                        </table>
+                      )}
                     </div>
                   </div>
 
@@ -1868,28 +1923,31 @@ export default function DashboardPage() {
 
                     <div style={styles.tableCard} className="glass-panel">
                       <h3 style={styles.formTitle}>Gerenciar Câmeras</h3>
-                      <table style={styles.table}>
-                        <thead>
-                          <tr style={styles.tr}>
-                            <th style={styles.th}>Câmera</th>
-                            <th style={styles.th}>Condomínio</th>
-                            <th style={styles.th}>RTSP</th>
-                            <th style={styles.th}>Status</th>
-                            <th style={styles.th}>Ações</th>
-                          </tr>
-                        </thead>
-                        <tbody>
+                      {isMobile ? (
+                        <div style={{ display: "flex", flexDirection: "column", gap: "12px" }}>
                           {filteredCameras.map((c) => {
                             const condoName = condos.find(condo => condo.id === c.condominium_id)?.name || "N/A";
                             return (
-                              <tr key={c.id} style={styles.tr}>
-                                <td style={styles.td}>{c.name}</td>
-                                <td style={styles.td} style={{ fontSize: "12px", color: "var(--text-muted)" }}>{condoName}</td>
-                                <td style={styles.td} style={{ fontSize: "12px", color: "var(--text-muted)", maxWidth: "120px", overflow: "hidden", textOverflow: "ellipsis" }}>
-                                  {c.rtsp_url && c.rtsp_url.includes("source=publisher") ? "🔌 Webcam USB Local (Nativa)" : c.rtsp_url}
-                                </td>
-                                <td style={styles.td}>{c.status}</td>
-                                <td style={styles.td}>
+                              <div key={c.id} style={{
+                                background: "rgba(255, 255, 255, 0.03)",
+                                border: "1px solid rgba(255, 255, 255, 0.08)",
+                                borderRadius: "12px",
+                                padding: "16px",
+                                display: "flex",
+                                flexDirection: "column",
+                                gap: "8px"
+                              }}>
+                                <div style={{ fontWeight: "600", color: "#fff" }}>{c.name}</div>
+                                <div style={{ fontSize: "12px", color: "var(--text-secondary)" }}>
+                                  🏢 Condomínio: {condoName}
+                                </div>
+                                <div style={{ fontSize: "11px", color: "var(--text-muted)", textOverflow: "ellipsis", overflow: "hidden", whiteSpace: "nowrap" }}>
+                                  🔗 {c.rtsp_url && c.rtsp_url.includes("source=publisher") ? "Webcam USB Local" : c.rtsp_url}
+                                </div>
+                                <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginTop: "4px" }}>
+                                  <span className={`badge badge-${c.status === "online" ? "low" : "high"}`} style={{ fontSize: "11px" }}>
+                                    {c.status}
+                                  </span>
                                   <div style={{ display: "flex", gap: "8px" }}>
                                     <button onClick={() => handleTestCamera(c.id)} style={styles.btnActionResolve}>
                                       Testar
@@ -1905,77 +1963,175 @@ export default function DashboardPage() {
                                       Excluir
                                     </button>
                                   </div>
-                                </td>
-                              </tr>
+                                </div>
+                              </div>
                             );
                           })}
-                        </tbody>
-                      </table>
+                        </div>
+                      ) : (
+                        <table style={styles.table}>
+                          <thead>
+                            <tr style={styles.tr}>
+                              <th style={styles.th}>Câmera</th>
+                              <th style={styles.th}>Condomínio</th>
+                              <th style={styles.th}>RTSP</th>
+                              <th style={styles.th}>Status</th>
+                              <th style={styles.th}>Ações</th>
+                            </tr>
+                          </thead>
+                          <tbody>
+                            {filteredCameras.map((c) => {
+                              const condoName = condos.find(condo => condo.id === c.condominium_id)?.name || "N/A";
+                              return (
+                                <tr key={c.id} style={styles.tr}>
+                                  <td style={styles.td}>{c.name}</td>
+                                  <td style={styles.td} style={{ fontSize: "12px", color: "var(--text-muted)" }}>{condoName}</td>
+                                  <td style={styles.td} style={{ fontSize: "12px", color: "var(--text-muted)", maxWidth: "120px", overflow: "hidden", textOverflow: "ellipsis" }}>
+                                    {c.rtsp_url && c.rtsp_url.includes("source=publisher") ? "🔌 Webcam USB Local (Nativa)" : c.rtsp_url}
+                                  </td>
+                                  <td style={styles.td}>{c.status}</td>
+                                  <td style={styles.td}>
+                                    <div style={{ display: "flex", gap: "8px" }}>
+                                      <button onClick={() => handleTestCamera(c.id)} style={styles.btnActionResolve}>
+                                        Testar
+                                      </button>
+                                      <button 
+                                        onClick={() => handleDeleteCamera(c.id)} 
+                                        style={{
+                                          ...styles.btnActionResolve, 
+                                          color: "#ef4444", 
+                                          borderColor: "rgba(239,68,68,0.3)"
+                                        }}
+                                      >
+                                        Excluir
+                                      </button>
+                                    </div>
+                                  </td>
+                                </tr>
+                              );
+                            })}
+                          </tbody>
+                        </table>
+                      )}
                     </div>
                   </div>
 
                   {/* Row 3: Approvals */}
                   <div style={{ ...styles.tableCard, marginTop: "24px" }} className="glass-panel">
                     <h3 style={styles.formTitle}>Aprovação de Moradores & Operadores</h3>
-                    <table style={styles.table}>
-                      <thead>
-                        <tr style={styles.tr}>
-                          <th style={styles.th}>Nome</th>
-                          <th style={styles.th}>Condomínio</th>
-                          <th style={styles.th}>Apto / Torre</th>
-                          <th style={styles.th}>E-mail</th>
-                          <th style={styles.th}>CPF</th>
-                          <th style={styles.th}>Função</th>
-                          <th style={styles.th}>Status</th>
-                          <th style={styles.th}>Ação</th>
-                        </tr>
-                      </thead>
-                      <tbody>
-                        {filteredUsers.map((u) => {
-                          const condoName = condos.find(c => c.id === u.condominium_id)?.name || "N/A";
-                          return (
-                            <tr key={u.id} style={styles.tr}>
-                              <td style={styles.td}>{u.name}</td>
-                              <td style={styles.td} style={{ fontSize: "13px", color: "var(--text-muted)" }}>{condoName}</td>
-                              <td style={styles.td} style={{ fontSize: "13px" }}>{u.apartment ? `${u.apartment} - ${u.tower || "Torre 1"}` : "-"}</td>
-                              <td style={styles.td}>{u.email}</td>
-                              <td style={styles.td}>{u.cpf}</td>
-                              <td style={styles.td}>{u.role_id}</td>
-                              <td style={styles.td}>{u.status}</td>
-                              <td style={styles.td}>
-                                <div style={{ display: "flex", gap: "8px", alignItems: "center" }}>
-                                  {u.status === "pending" ? (
-                                    <button onClick={() => handleApproveUser(u.id)} style={styles.btnApprove}>
-                                      Aprovar
-                                    </button>
-                                  ) : (
-                                    <span style={{ color: "var(--text-muted)" }}>Ativo</span>
-                                  )}
-                                  {u.role_id === "morador" && (
-                                    <button
-                                      onClick={() => handleSendTestAlert(u.id)}
-                                      style={{
-                                        background: "rgba(99,102,241,0.2)",
-                                        border: "1px solid #6366f1",
-                                        color: "#818cf8",
-                                        borderRadius: "6px",
-                                        padding: "4px 8px",
-                                        cursor: "pointer",
-                                        fontSize: "12px",
-                                        whiteSpace: "nowrap"
-                                      }}
-                                      title="Enviar Alerta de Teste de Vaga"
-                                    >
-                                      🔔 Testar Alerta
-                                    </button>
-                                  )}
-                                </div>
-                              </td>
-                            </tr>
-                          );
-                        })}
-                      </tbody>
-                    </table>
+                    {isMobile ? (
+                       <div style={{ display: "flex", flexDirection: "column", gap: "12px" }}>
+                         {filteredUsers.map((u) => {
+                           const condoName = condos.find(c => c.id === u.condominium_id)?.name || "N/A";
+                           return (
+                             <div key={u.id} style={{
+                               background: "rgba(255, 255, 255, 0.03)",
+                               border: "1px solid rgba(255, 255, 255, 0.08)",
+                               borderRadius: "12px",
+                               padding: "16px",
+                               display: "flex",
+                               flexDirection: "column",
+                               gap: "8px"
+                             }}>
+                               <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
+                                 <span style={{ fontWeight: "600", color: "#fff" }}>{u.name}</span>
+                                 <span style={{ fontSize: "11px", color: "var(--text-muted)" }}>{u.role_id}</span>
+                               </div>
+                               <div style={{ fontSize: "12px", color: "var(--text-secondary)" }}>
+                                 🏢 {condoName} {u.apartment ? `| Apto: ${u.apartment} (${u.tower || "Torre 1"})` : ""}
+                               </div>
+                               <div style={{ fontSize: "12px", color: "var(--text-muted)" }}>
+                                 ✉️ {u.email} | CPF: {u.cpf}
+                               </div>
+                               <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginTop: "4px" }}>
+                                 <span style={{ fontSize: "12px" }}>Status: {u.status}</span>
+                                 <div style={{ display: "flex", gap: "8px", alignItems: "center" }}>
+                                   {u.status === "pending" && (
+                                     <button onClick={() => handleApproveUser(u.id)} style={styles.btnApprove}>
+                                       Aprovar
+                                     </button>
+                                   )}
+                                   {u.role_id === "morador" && (
+                                     <button
+                                       onClick={() => handleSendTestAlert(u.id)}
+                                       style={{
+                                         background: "rgba(99,102,241,0.2)",
+                                         border: "1px solid #6366f1",
+                                         color: "#818cf8",
+                                         padding: "4px 10px",
+                                         borderRadius: "6px",
+                                         cursor: "pointer",
+                                         fontSize: "12px"
+                                       }}
+                                     >
+                                       🔔 Testar Push
+                                     </button>
+                                   )}
+                                 </div>
+                               </div>
+                             </div>
+                           );
+                         })}
+                       </div>
+                     ) : (
+                       <table style={styles.table}>
+                         <thead>
+                           <tr style={styles.tr}>
+                             <th style={styles.th}>Nome</th>
+                             <th style={styles.th}>Condomínio</th>
+                             <th style={styles.th}>Apto / Torre</th>
+                             <th style={styles.th}>E-mail</th>
+                             <th style={styles.th}>CPF</th>
+                             <th style={styles.th}>Função</th>
+                             <th style={styles.th}>Status</th>
+                             <th style={styles.th}>Ação</th>
+                           </tr>
+                         </thead>
+                         <tbody>
+                           {filteredUsers.map((u) => {
+                             const condoName = condos.find(c => c.id === u.condominium_id)?.name || "N/A";
+                             return (
+                               <tr key={u.id} style={styles.tr}>
+                                 <td style={styles.td}>{u.name}</td>
+                                 <td style={styles.td} style={{ fontSize: "13px", color: "var(--text-muted)" }}>{condoName}</td>
+                                 <td style={styles.td} style={{ fontSize: "13px" }}>{u.apartment ? `${u.apartment} - ${u.tower || "Torre 1"}` : "-"}</td>
+                                 <td style={styles.td}>{u.email}</td>
+                                 <td style={styles.td}>{u.cpf}</td>
+                                 <td style={styles.td}>{u.role_id}</td>
+                                 <td style={styles.td}>{u.status}</td>
+                                 <td style={styles.td}>
+                                   <div style={{ display: "flex", gap: "8px", alignItems: "center" }}>
+                                     {u.status === "pending" ? (
+                                       <button onClick={() => handleApproveUser(u.id)} style={styles.btnApprove}>
+                                         Aprovar
+                                       </button>
+                                     ) : (
+                                       <span style={{ color: "var(--text-muted)" }}>Ativo</span>
+                                     )}
+                                     {u.role_id === "morador" && (
+                                       <button
+                                         onClick={() => handleSendTestAlert(u.id)}
+                                         style={{
+                                           background: "rgba(99,102,241,0.2)",
+                                           border: "1px solid #6366f1",
+                                           color: "#818cf8",
+                                           padding: "6px 12px",
+                                           borderRadius: "6px",
+                                           cursor: "pointer",
+                                           fontSize: "12px"
+                                         }}
+                                       >
+                                         Testar Sirene
+                                       </button>
+                                     )}
+                                   </div>
+                                 </td>
+                               </tr>
+                             );
+                           })}
+                         </tbody>
+                       </table>
+                     )}
                   </div>
 
                 </div>
@@ -2198,561 +2354,145 @@ export default function DashboardPage() {
                 </div>
               )}
             </div>
-          )}
-        
-          {/* TAB: MONITORAR VAGA NA RUA */}
-          {activeTab === "monitorar_vaga" && (
-            <div style={styles.tabContent}>
-              <div style={styles.sectionHeader}>
-                <h2 style={styles.sectionTitle}>Monitorar Vaga na Rua</h2>
-              </div>
-
-              <div style={styles.tabGrid}>
-                {/* Ativação / Cadastro */}
-                <div style={styles.formCard} className="glass-panel">
-                  <h3 style={styles.formTitle}>Marcar Vaga Estacionada</h3>
-                  <div style={styles.formElement}>
-                    <div style={{ display: "flex", flexDirection: "column", gap: "6px" }}>
-                      <label style={{ color: "#fff", fontSize: "14px", marginBottom: "6px" }}>Selecione o seu Veículo</label>
-                      <select
-                        value={selectedVehicleId}
-                        onChange={(e) => setSelectedVehicleId(e.target.value)}
-                        className="input-field"
-                        style={{ appearance: "auto" }}
-                      >
-                        <option value="">Selecione o seu Veículo</option>
-                        {vehicles.map((v) => (
-                          <option key={v.id} value={v.id}>
-                            {v.brand} {v.model} ({v.plate})
-                          </option>
-                        ))}
-                      </select>
-                    </div>
-
-                    <div style={{ display: "flex", flexDirection: "column", gap: "6px", marginTop: "12px" }}>
-                      <label style={{ color: "#fff", fontSize: "14px", marginBottom: "6px" }}>Selecione a Câmera</label>
-                      <select
-                        value={selectedCameraForMonitoring}
-                        onChange={(e) => setSelectedCameraForMonitoring(e.target.value)}
-                        className="input-field"
-                        style={{ appearance: "auto" }}
-                      >
-                        <option value="">Selecione a Câmera</option>
-                        {cameras.map((c) => (
-                          <option key={c.id} value={c.id}>
-                            {c.name} {c.location_name ? `- ${c.location_name}` : ""}
-                          </option>
-                        ))}
-                      </select>
-                    </div>
-
-                    <button
-                      onClick={() => {
-                        if (!selectedVehicleId) {
-                          alert("Selecione um veículo.");
-                          return;
-                        }
-                        if (!selectedCameraForMonitoring) {
-                          alert("Selecione uma câmera.");
-                          return;
-                        }
-                        setTempPoints([]);
-                        setIsDrawingMonitoringSpot(true);
-                      }}
-                      className="btn-primary"
-                      style={{ marginTop: "20px" }}
-                    >
-                      ✏️ Marcar Vaga na Câmera
-                    </button>
-                  </div>
-                </div>
-
-                {/* Vagas monitoradas ativas */}
-                <div style={styles.tableCard} className="glass-panel">
-                  <h3 style={styles.formTitle}>Suas Vagas Monitoradas</h3>
-                  <table style={styles.table}>
-                    <thead>
-                      <tr style={styles.tr}>
-                        <th style={styles.th}>Veículo</th>
-                        <th style={styles.th}>Câmera</th>
-                        <th style={styles.th}>Status</th>
-                        <th style={styles.th}>Ações</th>
-                      </tr>
-                    </thead>
-                    <tbody>
-                      {monitorings.map((m) => {
-                        const vehicleName = vehicles.find((v) => v.id === m.vehicle_id);
-                        const carLabel = vehicleName ? `${vehicleName.brand} ${vehicleName.model} (${vehicleName.plate})` : "Veículo";
-                        const camName = cameras.find((c) => c.id === m.camera_id)?.name || "Câmera";
-                        return (
-                          <tr key={m.id} style={styles.tr}>
-                            <td style={styles.td}><strong>{carLabel}</strong></td>
-                            <td style={styles.td}>{camName}</td>
-                            <td style={styles.td}>
-                              <button
-                                onClick={() => handleToggleMonitoring(m.id)}
-                                style={{
-                                  padding: "4px 8px",
-                                  fontSize: "12px",
-                                  borderRadius: "4px",
-                                  border: "none",
-                                  cursor: "pointer",
-                                  background: m.is_active ? "var(--success)" : "var(--bg-secondary)",
-                                  color: "#fff"
-                                }}
-                              >
-                                {m.is_active ? "🟢 ATIVO" : "🔴 INATIVO"}
-                              </button>
-                            </td>
-                            <td style={styles.td}>
-                              <button
-                                onClick={() => handleDeleteMonitoring(m.id)}
-                                style={{
-                                  background: "none",
-                                  border: "none",
-                                  color: "#ef4444",
-                                  cursor: "pointer"
-                                }}
-                              >
-                                <Trash size={16} />
-                              </button>
-                            </td>
-                          </tr>
-                        );
-                      })}
-                      {monitorings.length === 0 && (
-                        <tr>
-                          <td colSpan={4} style={styles.emptyTableTd}>
-                            Nenhum veículo sendo monitorado no momento.
-                          </td>
-                        </tr>
-                      )}
-                    </tbody>
-                  </table>
-                </div>
-              </div>
-
-              {/* Drawing modal for resident parking spot */}
-              {isDrawingMonitoringSpot && selectedCameraForMonitoring && (
-                <div style={styles.modalOverlay}>
-                  <div style={{ ...styles.modalContainer, width: "640px" }} className="glass-panel">
-                    <div style={{ padding: "20px" }}>
-                      <h3 style={styles.formTitle}>Desenhe a Vaga de Estacionamento (Arraste o Dedo)</h3>
-                      <p style={{ color: "var(--text-secondary)", fontSize: "13px", marginBottom: "12px" }}>
-                        Arraste o dedo (no celular) ou o mouse para desenhar um quadrado sobre o seu veículo na câmera.
-                      </p>
-                      
-                      <div style={{ position: "relative", width: "100%", aspectRatio: "16/9", background: "#000", borderRadius: "8px", overflow: "hidden", touchAction: "none" }}>
-                        <WebRTCOverlayPlayer 
-                           streamId={selectedCameraForMonitoring} 
-                           status={cameras.find(c => c.id === selectedCameraForMonitoring)?.status} 
-                           activeMonitorings={monitorings.filter(m => m.camera_id === selectedCameraForMonitoring && m.is_active)}
-                           zones={cameras.find(c => c.id === selectedCameraForMonitoring)?.zones || []}
-                           rtspUrl={cameras.find(c => c.id === selectedCameraForMonitoring)?.rtsp_url}
-                        />
-                        <canvas
-                          onMouseDown={(e) => handleStartDrawing(e.clientX, e.clientY, e.currentTarget)}
-                          onMouseMove={(e) => handleMoveDrawing(e.clientX, e.clientY, e.currentTarget)}
-                          onMouseUp={handleEndDrawing}
-                          onTouchStart={(e) => {
-                            e.preventDefault();
-                            const touch = e.touches[0];
-                            handleStartDrawing(touch.clientX, touch.clientY, e.currentTarget);
-                          }}
-                          onTouchMove={(e) => {
-                            e.preventDefault();
-                            const touch = e.touches[0];
-                            handleMoveDrawing(touch.clientX, touch.clientY, e.currentTarget);
-                          }}
-                          onTouchEnd={(e) => {
-                            e.preventDefault();
-                            handleEndDrawing();
-                          }}
-                          style={{
-                            position: "absolute",
-                            top: 0,
-                            left: 0,
-                            width: "100%",
-                            height: "100%",
-                            cursor: "crosshair",
-                            zIndex: 10
-                          }}
-                          ref={(canvas) => {
-                            if (!canvas) return;
-                            const ctx = canvas.getContext("2d");
-                            const rect = canvas.getBoundingClientRect();
-                            canvas.width = rect.width;
-                            canvas.height = rect.height;
-                            ctx.clearRect(0, 0, canvas.width, canvas.height);
-                            
-                            // Draw user drawn rectangle
-                            if (tempPoints.length > 0) {
-                              ctx.lineWidth = 3;
-                              ctx.strokeStyle = "#10b981";
-                              ctx.fillStyle = "rgba(16, 185, 129, 0.2)";
-                              ctx.beginPath();
-                              tempPoints.forEach((pt, idx) => {
-                                const cx = pt.x * canvas.width;
-                                const cy = pt.y * canvas.height;
-                                if (idx === 0) ctx.moveTo(cx, cy);
-                                else ctx.lineTo(cx, cy);
-                              });
-                              if (tempPoints.length === 4) ctx.closePath();
-                              ctx.stroke();
-                              if (tempPoints.length === 4) ctx.fill();
-                              
-                              // Draw anchors
-                              ctx.fillStyle = "#ffffff";
-                              tempPoints.forEach((pt) => {
-                                ctx.beginPath();
-                                ctx.arc(pt.x * canvas.width, pt.y * canvas.height, 5, 0, 2 * Math.PI);
-                                ctx.fill();
-                              });
-                            }
-
-                            // Draw AI suggested snapped rectangle
-                            if (showSnappingConfirm && snappedPoints.length === 4) {
-                              ctx.lineWidth = 2;
-                              ctx.strokeStyle = "#f59e0b";
-                              ctx.fillStyle = "rgba(245, 158, 11, 0.15)";
-                              ctx.setLineDash([6, 4]); // dashed line
-                              ctx.beginPath();
-                              snappedPoints.forEach((pt, idx) => {
-                                const cx = pt.x * canvas.width;
-                                const cy = pt.y * canvas.height;
-                                if (idx === 0) ctx.moveTo(cx, cy);
-                                else ctx.lineTo(cx, cy);
-                              });
-                              ctx.closePath();
-                              ctx.stroke();
-                              ctx.fill();
-                              ctx.setLineDash([]); // reset dash
-
-                              // Draw AI label
-                              ctx.fillStyle = "#f59e0b";
-                              ctx.font = "bold 12px sans-serif";
-                              ctx.fillText("🤖 Sugestão da IA", snappedPoints[0].x * canvas.width + 4, snappedPoints[0].y * canvas.height - 6);
-                            }
-                          }}
-                        />
-                      </div>
-
-                      {showSnappingConfirm && (
-                        <div style={{
-                          background: "rgba(245, 158, 11, 0.1)",
-                          border: "1px solid rgba(245, 158, 11, 0.3)",
-                          borderRadius: "8px",
-                          padding: "14px",
-                          marginTop: "16px",
-                          display: "flex",
-                          flexDirection: "column",
-                          gap: "10px"
-                        }}>
-                          <p style={{ color: "#fef3c7", fontSize: "14px", margin: 0, lineHeight: "1.4" }}>
-                            🤖 <strong>IA Sentinel:</strong> Encontramos um veículo ({suggestedVehicleType}) na área. Deseja ajustar o quadrado exatamente sobre ele?
-                          </p>
-                          <div style={{ display: "flex", gap: "8px", flexWrap: "wrap" }}>
-                            <button
-                              onClick={() => {
-                                setTempPoints(snappedPoints);
-                                setShowSnappingConfirm(false);
-                              }}
-                              className="btn-primary"
-                              style={{ padding: "6px 12px", fontSize: "12px", background: "#f59e0b", borderColor: "#d97706" }}
-                            >
-                              Sim, Ajustar
-                            </button>
-                            <button
-                              onClick={() => {
-                                setShowSnappingConfirm(false);
-                              }}
-                              className="btn-secondary"
-                              style={{ padding: "6px 12px", fontSize: "12px", background: "rgba(255,255,255,0.05)", border: "1px solid rgba(255,255,255,0.15)" }}
-                            >
-                              Não, Manter Meu Desenho
-                            </button>
-                            <button
-                              onClick={() => {
-                                setShowSnappingConfirm(false);
-                                setTempPoints([]);
-                              }}
-                              className="btn-secondary"
-                              style={{ padding: "6px 12px", fontSize: "12px", color: "#ef4444", border: "1px solid rgba(239,68,68,0.3)" }}
-                            >
-                              Refazer
-                            </button>
-                          </div>
-                        </div>
-                      )}
-                      
-                      <div style={{ display: "flex", justifyContent: "flex-end", gap: "12px", marginTop: "16px" }}>
-                        <button 
-                          onClick={() => {
-                            setTempPoints([]);
-                            setShowSnappingConfirm(false);
-                          }} 
-                          className="btn-secondary"
-                          style={{ padding: "8px 16px" }}
-                        >
-                          Limpar
-                        </button>
-                        <button 
-                          onClick={() => {
-                            setIsDrawingMonitoringSpot(false);
-                            setTempPoints([]);
-                            setShowSnappingConfirm(false);
-                          }} 
-                          className="btn-secondary"
-                          style={{ padding: "8px 16px" }}
-                        >
-                          Cancelar
-                        </button>
-                        <button 
-                          onClick={() => {
-                            if (tempPoints.length !== 4) {
-                              alert("Arraste o dedo ou o mouse para desenhar a vaga.");
-                              return;
-                            }
-                            handleCreateMonitoring(tempPoints);
-                          }} 
-                          className="btn-primary"
-                          style={{ padding: "8px 16px" }}
-                          disabled={showSnappingConfirm}
-                        >
-                          Ativar Monitoramento
-                        </button>
-                      </div>
-                    </div>
-                  </div>
-                </div>
-              )}
-            </div>
-          )}
-
-          {/* TAB 5: FATURAMENTO & COBRANÇA */}
-          {activeTab === "faturamento" && (role === "admin_condominio" || role === "administradora") && (
-            <div style={styles.tabContent}>
-              <div style={styles.sectionHeader}>
-                <h2 style={styles.sectionTitle}>Gerenciamento de Planos e Cobrança</h2>
-              </div>
-
-              <div style={styles.tabGrid}>
-                {/* Active subscription info */}
-                <div style={styles.formCard} className="glass-panel">
-                  <h3 style={styles.formTitle}>Sua Assinatura</h3>
-                  <div style={styles.subDetail}>
-                    <p>Status: <strong style={{ color: "var(--success)" }}>{subscription.status.toUpperCase()}</strong></p>
-                    <p>Plano Atual: <strong>{plans.find((p) => p.id === subscription.plan_id)?.name || "Starter"}</strong></p>
-                    <p>Validade: <strong>{new Date(subscription.current_period_end).toLocaleDateString()}</strong></p>
-                  </div>
-
-                  <div style={{ marginTop: "24px" }}>
-                    <h4 style={{ color: "#fff", marginBottom: "12px" }}>Alterar Plano</h4>
-                    <div style={styles.plansList}>
-                      {plans.map((p) => (
-                        <div key={p.id} style={styles.planItem} className="glass-card">
-                          <div>
-                            <strong>{p.name}</strong>
-                            <p style={{ fontSize: "12px", color: "var(--text-muted)" }}>
-                              Limite: {p.max_cameras} câmeras | {p.video_retention_days} dias de vídeo
-                            </p>
-                          </div>
-                          <button 
-                            onClick={() => {
-                              fetch(`${getBackendUrl()}/api/billing/subscribe?plan_id=${p.id}`, {
-                                method: "POST",
-                                headers: { Authorization: `Bearer ${token}` }
-                              }).then((res) => {
-                                if (res.ok) {
-                                  alert("Inscrição efetuada! Pague a fatura gerada.");
-                                  fetchData(token, role);
-                                }
-                              });
-                            }} 
-                            className="btn-primary" 
-                            style={{ padding: "6px 12px", fontSize: "13px" }}
-                          >
-                            R$ {p.price_cents / 100}
-                          </button>
-                        </div>
-                      ))}
-                    </div>
-                  </div>
-                </div>
-
-                {/* Invoices list */}
-                <div style={styles.tableCard} className="glass-panel">
-                  <h3 style={styles.formTitle}>Faturas Emitidas (Stripe)</h3>
-                  <table style={styles.table}>
-                    <thead>
-                      <tr style={styles.tr}>
-                        <th style={styles.th}>Vencimento</th>
-                        <th style={styles.th}>Valor</th>
-                        <th style={styles.th}>Status</th>
-                        <th style={styles.th}>Ação</th>
-                      </tr>
-                    </thead>
-                    <tbody>
-                      {invoices.map((inv) => (
-                        <tr key={inv.id} style={styles.tr}>
-                          <td style={styles.td}>{new Date(inv.due_date).toLocaleDateString()}</td>
-                          <td style={styles.td}>R$ {inv.amount_cents / 100}</td>
-                          <td style={styles.td}>
-                            {inv.status === "paid" ? (
-                              <span style={{ color: "var(--success)" }}>Pago</span>
-                            ) : (
-                              <span style={{ color: "var(--warning)" }}>Pendente</span>
-                            )}
-                          </td>
-                          <td style={styles.td}>
-                            {inv.status !== "paid" && (
-                              <button onClick={() => handlePayInvoice(inv.id)} style={styles.btnApprove}>
-                                Pagar
-                              </button>
-                            )}
-                          </td>
-                        </tr>
-                      ))}
-                    </tbody>
-                  </table>
-                </div>
-              </div>
-            </div>
-          )}
-          {/* Fullscreen Expanded Camera Modal */}
-          {expandedCameraId && (
-            <div 
-              ref={modalRef}
+            )}
+          </main>
+        </div>
+        {isMobile && (
+          <div style={{
+            position: "fixed",
+            bottom: 0,
+            left: 0,
+            right: 0,
+            height: "64px",
+            background: "rgba(15, 23, 42, 0.95)",
+            backdropFilter: "blur(20px)",
+            WebkitBackdropFilter: "blur(20px)",
+            borderTop: "1px solid rgba(255, 255, 255, 0.08)",
+            display: "flex",
+            justifyContent: "space-around",
+            alignItems: "center",
+            zIndex: 999,
+            paddingBottom: "safe-area-inset-bottom"
+          }}>
+            <button 
+              onClick={() => setActiveTab("monitoramento")} 
               style={{
-                ...styles.modalOverlay,
-                background: isMobile ? "#000" : "rgba(0,0,0,0.8)"
-              }} 
-              className={isClosingModal ? "modal-overlay-closing" : "modal-overlay-open"}
+                background: "none",
+                border: "none",
+                color: activeTab === "monitoramento" ? "#6366f1" : "#9ca3af",
+                display: "flex",
+                flexDirection: "column",
+                alignItems: "center",
+                gap: "4px",
+                fontSize: "10px",
+                fontWeight: activeTab === "monitoramento" ? "700" : "500",
+                cursor: "pointer",
+                flex: 1
+              }}
             >
-              {isMobile ? (
-                /* Fullscreen Mobile View */
-                <div 
-                  style={{ 
-                    position: "relative", 
-                    width: "100vw", 
-                    height: "100vh", 
-                    background: "#000", 
-                    display: "flex", 
-                    alignItems: "center", 
-                    justifyContent: "center",
-                    overflow: "hidden"
-                  }}
-                  className={isClosingModal ? "modal-container-closing" : "modal-container-open"}
-                >
-                  {/* Floating Header Badge */}
-                  <div style={{
-                    position: "absolute",
-                    top: "16px",
-                    left: "16px",
-                    zIndex: 1000,
-                    background: "rgba(0, 0, 0, 0.6)",
-                    backdropFilter: "blur(8px)",
-                    WebkitBackdropFilter: "blur(8px)",
-                    borderRadius: "20px",
-                    padding: "6px 14px",
-                    border: "1px solid rgba(255,255,255,0.08)",
-                  }}>
-                    <span style={{ color: "#fff", fontSize: "13px", fontWeight: "600" }}>
-                      🎥 {cameras.find(c => c.id === expandedCameraId)?.name || "Câmera"}
-                    </span>
-                  </div>
-
-                  {/* Floating Close Button */}
-                  <button 
-                    onClick={closeExpandedCamera}
-                    style={{
-                      position: "absolute",
-                      top: "16px",
-                      right: "16px",
-                      zIndex: 1000,
-                      background: "rgba(0, 0, 0, 0.6)",
-                      backdropFilter: "blur(8px)",
-                      WebkitBackdropFilter: "blur(8px)",
-                      border: "1px solid rgba(255,255,255,0.08)",
-                      color: "#fff",
-                      fontSize: "20px",
-                      cursor: "pointer",
-                      width: "40px",
-                      height: "40px",
-                      borderRadius: "50%",
-                      display: "flex",
-                      alignItems: "center",
-                      justifyContent: "center",
-                      boxShadow: "0 4px 12px rgba(0,0,0,0.5)"
-                    }}
-                  >
-                    &times;
-                  </button>
-
-                  {/* 100% Fullscreen player wrapper */}
-                  <div style={{ width: "100%", height: "100%", display: "flex", alignItems: "center", justifyContent: "center" }}>
-                    <WebRTCOverlayPlayer 
-                      streamId={expandedCameraId} 
-                      status={cameras.find(c => c.id === expandedCameraId)?.status} 
-                      showDetections={true}
-                      activeMonitorings={monitorings.filter(m => m.camera_id === expandedCameraId && m.is_active)}
-                      zones={cameras.find(c => c.id === expandedCameraId)?.zones || []}
-                      rtspUrl={cameras.find(c => c.id === expandedCameraId)?.rtsp_url}
-                    />
-                  </div>
-                </div>
-              ) : (
-                /* Standard Desktop Modal View */
-                <div 
-                  style={{ 
-                    ...styles.modalContainer, 
-                    width: "90vw", 
-                    maxWidth: "960px", 
-                    height: "auto", 
-                    maxHeight: "90vh", 
-                    overflowY: "hidden", 
-                    display: "flex", 
-                    flexDirection: "column" 
-                  }} 
-                  className={`glass-panel ${isClosingModal ? "modal-container-closing" : "modal-container-open"}`}
-                >
-                  <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", padding: "16px 20px", borderBottom: "1px solid rgba(255,255,255,0.08)" }}>
-                    <h3 style={{ margin: 0, color: "#fff" }}>
-                      {cameras.find(c => c.id === expandedCameraId)?.name || "Câmera Expandida"}
-                    </h3>
-                    <button 
-                      onClick={closeExpandedCamera}
-                      style={{
-                        background: "none",
-                        border: "none",
-                        color: "#fff",
-                        fontSize: "24px",
-                        cursor: "pointer",
-                        lineHeight: "1"
-                      }}
-                    >
-                      &times;
-                    </button>
-                  </div>
-                  <div style={{ flex: 1, position: "relative", background: "#000", overflow: "hidden" }}>
-                    <WebRTCOverlayPlayer 
-                      streamId={expandedCameraId} 
-                      status={cameras.find(c => c.id === expandedCameraId)?.status} 
-                      showDetections={true}
-                      activeMonitorings={monitorings.filter(m => m.camera_id === expandedCameraId && m.is_active)}
-                      zones={cameras.find(c => c.id === expandedCameraId)?.zones || []}
-                      rtspUrl={cameras.find(c => c.id === expandedCameraId)?.rtsp_url}
-                    />
-                  </div>
-                </div>
+              <Camera size={20} />
+              <span>Live</span>
+            </button>
+            <button 
+              onClick={() => setActiveTab("mapa")} 
+              style={{
+                background: "none",
+                border: "none",
+                color: activeTab === "mapa" ? "#6366f1" : "#9ca3af",
+                display: "flex",
+                flexDirection: "column",
+                alignItems: "center",
+                gap: "4px",
+                fontSize: "10px",
+                fontWeight: activeTab === "mapa" ? "700" : "500",
+                cursor: "pointer",
+                flex: 1
+              }}
+            >
+              <Map size={20} />
+              <span>Mapa</span>
+            </button>
+            <button 
+              onClick={() => setActiveTab("ocorrencias")} 
+              style={{
+                background: "none",
+                border: "none",
+                color: activeTab === "ocorrencias" ? "#6366f1" : "#9ca3af",
+                display: "flex",
+                flexDirection: "column",
+                alignItems: "center",
+                gap: "4px",
+                fontSize: "10px",
+                fontWeight: activeTab === "ocorrencias" ? "700" : "500",
+                cursor: "pointer",
+                position: "relative",
+                flex: 1
+              }}
+            >
+              <AlertTriangle size={20} />
+              <span>Alertas</span>
+              {stats.critical_unresolved_count > 0 && (
+                <span style={{
+                  position: "absolute",
+                  top: "-2px",
+                  right: "24%",
+                  background: "#ef4444",
+                  color: "#fff",
+                  fontSize: "9px",
+                  fontWeight: "700",
+                  minWidth: "14px",
+                  height: "14px",
+                  borderRadius: "50%",
+                  display: "flex",
+                  alignItems: "center",
+                  justifyContent: "center",
+                  padding: "2px"
+                }}>{stats.critical_unresolved_count}</span>
               )}
-            </div>
-          )}
-        </main>
+            </button>
+            <button 
+              onClick={() => setActiveTab("monitorar_vaga")} 
+              style={{
+                background: "none",
+                border: "none",
+                color: activeTab === "monitorar_vaga" ? "#6366f1" : "#9ca3af",
+                display: "flex",
+                flexDirection: "column",
+                alignItems: "center",
+                gap: "4px",
+                fontSize: "10px",
+                fontWeight: activeTab === "monitorar_vaga" ? "700" : "500",
+                cursor: "pointer",
+                flex: 1
+              }}
+            >
+              <Car size={20} />
+              <span>Vagas</span>
+            </button>
+            <button 
+              onClick={() => setActiveTab("cadastros")} 
+              style={{
+                background: "none",
+                border: "none",
+                color: activeTab === "cadastros" ? "#6366f1" : "#9ca3af",
+                display: "flex",
+                flexDirection: "column",
+                alignItems: "center",
+                gap: "4px",
+                fontSize: "10px",
+                fontWeight: activeTab === "cadastros" ? "700" : "500",
+                cursor: "pointer",
+                flex: 1
+              }}
+            >
+              <Users size={20} />
+              <span>Painel</span>
+            </button>
+          </div>
+        )}
       </div>
-    </div>
-  );
-}
+    );
+  }
 
 const styles = {
   dashboardContainer: {
