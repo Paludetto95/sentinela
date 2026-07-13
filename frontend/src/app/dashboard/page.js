@@ -1100,7 +1100,7 @@ export default function DashboardPage() {
               {role.toUpperCase()}
             </span>
           )}
-          {(role === "super_admin" || role === "administradora") && (
+          {!isMobile && (role === "super_admin" || role === "administradora") && (
             <div style={{ marginLeft: "20px" }}>
               <select
                 value={selectedCondoFilter}
@@ -1217,6 +1217,32 @@ export default function DashboardPage() {
 
         {/* MAIN PANEL CONTENT */}
         <main style={{ ...styles.mainPanel, paddingBottom: isMobile ? "80px" : "4px" }}>
+          {isMobile && (role === "super_admin" || role === "administradora") && (
+            <div style={{ marginBottom: "16px", padding: "0 4px" }}>
+              <select
+                value={selectedCondoFilter}
+                onChange={(e) => setSelectedCondoFilter(e.target.value)}
+                className="input-field"
+                style={{ 
+                  width: "100%", 
+                  padding: "10px 12px", 
+                  fontSize: "14px", 
+                  background: "rgba(255,255,255,0.05)",
+                  border: "1px solid rgba(255,255,255,0.1)",
+                  color: "#fff",
+                  borderRadius: "8px",
+                  outline: "none"
+                }}
+              >
+                <option value="" style={{ background: "#18181b" }}>Todos os Condomínios</option>
+                {condos.map((c) => (
+                  <option key={c.id} value={c.id} style={{ background: "#18181b" }}>
+                    🏢 {c.name}
+                  </option>
+                ))}
+              </select>
+            </div>
+          )}
           {apiError && <div style={styles.errorBanner}>{apiError}</div>}
 
           {/* TAB 1: MONITORAMENTO CENTRAL */}
