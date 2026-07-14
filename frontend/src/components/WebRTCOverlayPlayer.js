@@ -18,7 +18,8 @@ export default function WebRTCOverlayPlayer({
   activeMonitorings = [], 
   zones = [],
   allowIgnore = false,
-  rtspUrl = ""
+  rtspUrl = "",
+  isFullscreen = false
 }) {
   const videoRef = useRef(null);
   const pcRef = useRef(null);
@@ -61,7 +62,7 @@ export default function WebRTCOverlayPlayer({
   };
 
   // Local WebRTC publishing state
-  const isWebcam = rtspUrl && rtspUrl.includes("source=publisher");
+  const isWebcam = false;
   const [devices, setDevices] = useState([]);
   const [selectedDeviceId, setSelectedDeviceId] = useState(() => {
     if (typeof window !== "undefined" && window.__activeWhipPublishers?.[streamId]) {
@@ -466,25 +467,25 @@ export default function WebRTCOverlayPlayer({
       style={{
         ...styles.container,
         transform: `translate(${pan.x}px, ${pan.y}px)`,
-        cursor: isDragging.current ? "grabbing" : "grab",
-        touchAction: "none"
+        cursor: isFullscreen ? (isDragging.current ? "grabbing" : "grab") : "default",
+        touchAction: isFullscreen ? "none" : "auto"
       }}
-      onMouseDown={(e) => handleStart(e.clientX, e.clientY)}
-      onMouseMove={(e) => handleMove(e.clientX, e.clientY)}
-      onMouseUp={handleEnd}
-      onMouseLeave={handleEnd}
-      onTouchStart={(e) => {
+      onMouseDown={isFullscreen ? (e) => handleStart(e.clientX, e.clientY) : undefined}
+      onMouseMove={isFullscreen ? (e) => handleMove(e.clientX, e.clientY) : undefined}
+      onMouseUp={isFullscreen ? handleEnd : undefined}
+      onMouseLeave={isFullscreen ? handleEnd : undefined}
+      onTouchStart={isFullscreen ? (e) => {
         if (e.touches.length === 1) {
           handleStart(e.touches[0].clientX, e.touches[0].clientY);
         }
-      }}
-      onTouchMove={(e) => {
+      } : undefined}
+      onTouchMove={isFullscreen ? (e) => {
         if (e.touches.length === 1) {
           handleMove(e.touches[0].clientX, e.touches[0].clientY);
         }
-      }}
-      onTouchEnd={handleEnd}
-      onDoubleClick={handleDoubleClick}
+      } : undefined}
+      onTouchEnd={isFullscreen ? handleEnd : undefined}
+      onDoubleClick={isFullscreen ? handleDoubleClick : undefined}
     >
       {loading && <div style={styles.overlay}>Conectando...</div>}
 
