@@ -166,9 +166,19 @@ export default function AuthPage() {
       
       <div style={styles.glassContainer} className="glass-panel">
         <div style={styles.logoHeader}>
-          <div style={styles.shieldGlow}>
-            <Shield size={32} color="#6366f1" />
-          </div>
+          <img
+            src="/logo.jpg"
+            alt="Sentinela IA Logo"
+            style={{
+              width: "70px",
+              height: "70px",
+              borderRadius: "16px",
+              boxShadow: "0 0 20px rgba(99, 102, 241, 0.4)",
+              border: "1px solid rgba(255, 255, 255, 0.08)",
+              marginBottom: "12px",
+              objectFit: "cover"
+            }}
+          />
           <h2 style={styles.brandTitle}>SENTINEL AI</h2>
           <p style={styles.brandSubtitle}>Monitoramento Inteligente SaaS</p>
         </div>

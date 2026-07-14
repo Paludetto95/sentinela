@@ -283,7 +283,7 @@ export default function DashboardPage() {
                   navigator.serviceWorker.ready.then((registration) => {
                     registration.showNotification("Alerta de Segurança Sentinel AI", {
                       body: alertMsg,
-                      icon: "/favicon.ico",
+                      icon: "/logo.jpg",
                       image: eventImageUrl,
                       vibrate: [300, 100, 300],
                       tag: evt.id,
@@ -293,7 +293,7 @@ export default function DashboardPage() {
                 } else {
                   const n = new Notification("Alerta de Segurança Sentinel AI", {
                     body: alertMsg,
-                    icon: "/favicon.ico",
+                    icon: "/logo.jpg",
                     image: eventImageUrl
                   });
                   n.onclick = () => {
@@ -1093,7 +1093,19 @@ export default function DashboardPage() {
       {/* HEADER NAVBAR */}
       <header style={styles.navbar} className="glass-panel">
         <div style={styles.navBrand}>
-          <Shield size={24} color="#6366f1" />
+          <img
+            src="/logo.jpg"
+            alt="Sentinela IA Logo"
+            style={{
+              width: "28px",
+              height: "28px",
+              borderRadius: "6px",
+              marginRight: "8px",
+              boxShadow: "0 0 10px rgba(99, 102, 241, 0.3)",
+              border: "1px solid rgba(255, 255, 255, 0.08)",
+              objectFit: "cover"
+            }}
+          />
           <h3 style={styles.navTitle}>SENTINEL AI</h3>
           {!isMobile && (
             <span style={styles.roleBadge} className="badge badge-low">
