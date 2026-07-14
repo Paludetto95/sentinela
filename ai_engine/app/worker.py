@@ -19,11 +19,11 @@ DATABASE_URL = os.getenv(
 BACKEND_URL = os.getenv("API_URL", "http://backend:8000/api")
 redis_client = redis.from_url(os.getenv("REDIS_URL", "redis://redis:6379/0"))
 
-# Load YOLOv11 medium model with PyTorch GPU acceleration
+# Load YOLOv26 Medium model with PyTorch GPU acceleration
 import torch
 device = "cuda" if torch.cuda.is_available() else "cpu"
-print(f"Initializing YOLOv11 on device: {device}")
-model = YOLO("yolo11m.pt")
+print(f"Initializing YOLOv26 on device: {device}")
+model = YOLO("yolo26m.pt")
 
 active_workers = {}  # camera_id -> worker thread control flag
 
@@ -138,19 +138,32 @@ class ThreadedCamera:
             return None
 
     def _update(self):
+        consecutive_failures = 0
         while not self.stopped:
             if self.cap is not None and self.cap.isOpened():
                 try:
                     ret, frame = self.cap.read()
                     if ret and frame is not None and frame.size > 0:
+                        consecutive_failures = 0
                         with self.lock:
                             self.ret = True
                             self.frame = frame
                             self.last_frame_time = time.time()
                     else:
-                        time.sleep(0.01)
+                        consecutive_failures += 1
+                        if consecutive_failures > 50: # ~0.5 second of continuous failures
+                            print(f"[ThreadedCamera] Stream {self.name} connection lost. Reconnecting...")
+                            try:
+                                self.cap.release()
+                            except Exception:
+                                pass
+                            self.cap = None
+                            time.sleep(2.0)
+                        else:
+                            time.sleep(0.01)
                 except Exception as e:
                     print(f"Exception during frame read on camera thread {self.name}: {e}")
+                    consecutive_failures += 1
                     time.sleep(0.1)
             else:
                 time.sleep(2.0)
@@ -264,6 +277,11 @@ class CameraWorker(threading.Thread):
                     ret, raw_frame = cap.read()
                     if ret and raw_frame is not None and raw_frame.size > 0:
                         try:
+                            # Auto-rotate vertical streams (height > width) to horizontal
+                            h_raw, w_raw = raw_frame.shape[:2]
+                            if h_raw > w_raw:
+                                raw_frame = cv2.rotate(raw_frame, cv2.ROTATE_90_CLOCKWISE)
+                                
                             h, w = raw_frame.shape[:2]
                             if w > 1280:
                                 scale = 1280 / w
@@ -284,7 +302,7 @@ class CameraWorker(threading.Thread):
                             # Keep a copy of the last frame for alert keyframe snapshots
                             self.last_frame = frame.copy()
                             
-                            ret_enc, buffer = cv2.imencode('.jpg', frame, [cv2.IMWRITE_JPEG_QUALITY, 80])
+                            ret_enc, buffer = cv2.imencode('.jpg', frame, [cv2.IMWRITE_JPEG_QUALITY, 50])
                             if ret_enc:
                                 redis_client.set(f"camera:{self.camera_id}:frame", buffer.tobytes(), ex=5)
                         except Exception as e:
@@ -306,7 +324,7 @@ class CameraWorker(threading.Thread):
                 persist=True, 
                 device=device,
                 classes=[0, 2, 3, 5, 7], # 0: person, 2: car, 3: motorcycle, 5: bus, 7: truck
-                imgsz=1280,
+                imgsz=640,
                 conf=0.08, # Base confidence threshold to filter out low-level noise before tracking (lowered to 0.08 for weak matching)
                 iou=0.45,
                 tracker="app/custom_tracker.yaml", # Custom tracker parameters
@@ -344,9 +362,9 @@ class CameraWorker(threading.Thread):
                     if obj_type == "person":
                         min_conf = 0.10
                     elif obj_type == "motorcycle":
-                        min_conf = 0.15 if is_night else 0.18
+                        min_conf = 0.12 if is_night else 0.15
                     else:
-                        min_conf = 0.20 if is_night else 0.22
+                        min_conf = 0.14 if is_night else 0.16
                         
                     if confidence >= min_conf:
                         if obj_type in ["person", "car", "motorcycle", "truck", "bus"]:
@@ -356,7 +374,7 @@ class CameraWorker(threading.Thread):
                                 "box": (x1, y1, x2, y2),
                                 "yolo_tid": tid
                             })
-                    elif confidence >= 0.10:
+                    elif confidence >= 0.08:
                         if obj_type in ["person", "car", "motorcycle", "truck", "bus"]:
                             x1, y1, x2, y2 = map(int, box)
                             weak_dets.append({
@@ -372,11 +390,11 @@ class CameraWorker(threading.Thread):
                     
                     # Apply class-specific confidence thresholds for untracked detections
                     if obj_type == "person":
-                        min_conf = 0.12
+                        min_conf = 0.10
                     elif obj_type == "motorcycle":
-                        min_conf = 0.18 if is_night else 0.22
+                        min_conf = 0.15 if is_night else 0.18
                     else:
-                        min_conf = 0.25 if is_night else 0.28
+                        min_conf = 0.18 if is_night else 0.20
                         
                     if confidence >= min_conf:
                         if obj_type in ["person", "car", "motorcycle", "truck", "bus"]:
@@ -386,7 +404,7 @@ class CameraWorker(threading.Thread):
                                 "box": (x1, y1, x2, y2),
                                 "yolo_tid": None
                             })
-                    elif confidence >= 0.10:
+                    elif confidence >= 0.08:
                         if obj_type in ["person", "car", "motorcycle", "truck", "bus"]:
                             x1, y1, x2, y2 = map(int, box)
                             weak_dets.append({
@@ -614,11 +632,11 @@ class CameraWorker(threading.Thread):
                                         break
                         
                         if cached_obj_type == "person" and is_near_vehicle:
-                            max_missed_before_hide = 15
+                            max_missed_before_hide = 25
                         elif cached_obj_type in ["person", "car", "motorcycle", "truck", "bus"]:
-                            max_missed_before_hide = 3
+                            max_missed_before_hide = 15
                         else:
-                            max_missed_before_hide = 1
+                            max_missed_before_hide = 5
                             
                         if cached["missed_frames"] >= max_missed_before_hide:
                             continue
@@ -639,6 +657,7 @@ class CameraWorker(threading.Thread):
                     continue
                 
                 # If active zones or active resident monitorings exist, restrict detections to those areas
+                in_active_zone = True
                 has_filter_zones = len(active_zones) > 0 or len(self.monitorings) > 0
                 if has_filter_zones:
                     in_active_zone = False
@@ -652,8 +671,6 @@ class CameraWorker(threading.Thread):
                             if is_point_in_polygon(cx, cy, m_coords) or is_point_in_polygon(cx, cy_center, m_coords):
                                 in_active_zone = True
                                 break
-                    if not in_active_zone:
-                        continue
                     
                 # Check static false positives
                 det_box = [x1 / w_img, y1 / h_img, x2 / w_img, y2 / h_img]
@@ -677,16 +694,17 @@ class CameraWorker(threading.Thread):
                 if is_false_positive:
                     continue
                     
-                # Valid object - add to tracking list
-                detected_objects.append({
-                    "track_id": tid,
-                    "obj_type": obj_type,
-                    "cx": cx,
-                    "cy": cy,
-                    "box": (x1, y1, x2, y2)
-                })
+                # Valid object - add to tracking list if inside active monitoring zone
+                if in_active_zone:
+                    detected_objects.append({
+                        "track_id": tid,
+                        "obj_type": obj_type,
+                        "cx": cx,
+                        "cy": cy,
+                        "box": (x1, y1, x2, y2)
+                    })
                 
-                # Add to Redis frontend overlay list
+                # Add to Redis frontend overlay list (always show visually on the dashboard)
                 detections_detected.append({
                     "track_id": tid,
                     "obj_type": obj_type,
