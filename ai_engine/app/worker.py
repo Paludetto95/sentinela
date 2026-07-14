@@ -377,7 +377,7 @@ class CameraWorker(threading.Thread):
                     
                     # Trust YOLO active tracks: apply lower confidence thresholds to prevent flickering
                     if obj_type == "person":
-                        min_conf = 0.10
+                        min_conf = 0.05
                     elif obj_type == "motorcycle":
                         min_conf = 0.12 if is_night else 0.15
                     else:
@@ -391,7 +391,7 @@ class CameraWorker(threading.Thread):
                                 "box": (x1, y1, x2, y2),
                                 "yolo_tid": tid
                             })
-                    elif confidence >= 0.08:
+                    elif confidence >= 0.04:
                         if obj_type in ["person", "car", "motorcycle", "truck", "bus"]:
                             x1, y1, x2, y2 = map(int, box)
                             weak_dets.append({
@@ -407,7 +407,7 @@ class CameraWorker(threading.Thread):
                     
                     # Apply class-specific confidence thresholds for untracked detections
                     if obj_type == "person":
-                        min_conf = 0.10
+                        min_conf = 0.05
                     elif obj_type == "motorcycle":
                         min_conf = 0.15 if is_night else 0.18
                     else:
@@ -421,7 +421,7 @@ class CameraWorker(threading.Thread):
                                 "box": (x1, y1, x2, y2),
                                 "yolo_tid": None
                             })
-                    elif confidence >= 0.08:
+                    elif confidence >= 0.04:
                         if obj_type in ["person", "car", "motorcycle", "truck", "bus"]:
                             x1, y1, x2, y2 = map(int, box)
                             weak_dets.append({
