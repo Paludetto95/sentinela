@@ -241,6 +241,18 @@ export default function WebRTCOverlayPlayer({
   useEffect(() => {
     const shouldConnect = streamId && (status === "online" || isPublishing);
     if (!shouldConnect) {
+      setError(null);
+      return;
+    }
+
+    // Detect if we are on a remote hostname (Vercel) accessing a local backend/MediaMTX
+    const isRemote = typeof window !== "undefined" && 
+                     window.location.hostname !== "localhost" && 
+                     window.location.hostname !== "127.0.0.1";
+                     
+    if (isRemote) {
+      setError("WebRTC not supported on remote domain. Using MJPEG stream.");
+      setLoading(false);
       return;
     }
 
