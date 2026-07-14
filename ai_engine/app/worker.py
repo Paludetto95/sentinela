@@ -296,9 +296,9 @@ class CameraWorker(threading.Thread):
                                 raw_frame = cv2.rotate(raw_frame, cv2.ROTATE_90_CLOCKWISE)
                                 
                             h, w = raw_frame.shape[:2]
-                            if w > 1280:
-                                scale = 1280 / w
-                                frame = cv2.resize(raw_frame, (1280, int(h * scale)))
+                            if w > 1920:
+                                scale = 1920 / w
+                                frame = cv2.resize(raw_frame, (1920, int(h * scale)))
                             else:
                                 frame = raw_frame
                             
@@ -331,8 +331,8 @@ class CameraWorker(threading.Thread):
 
             # Process every frame for smooth 30 FPS tracking
 
-            # Use imgsz=1280 for all cameras since Emeet is also a high-altitude camera
-            imgsz_val = 1280
+            # Use imgsz=1920 for 1080p high definition inference
+            imgsz_val = 1920
 
             # Run YOLO inference with Custom BoT-SORT tracker and optimized parameters
             with yolo_lock:
