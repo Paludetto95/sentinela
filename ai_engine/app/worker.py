@@ -9,6 +9,8 @@ import psycopg2
 from psycopg2.extras import RealDictCursor
 from ultralytics import YOLO
 
+
+
 import redis
 import json
 
@@ -209,6 +211,8 @@ class CameraWorker(threading.Thread):
         self.frame_buffer = collections.deque(maxlen=150)
         self.last_record_time = 0.0
 
+
+
         # Track historical loitering timestamps: track_id -> first_seen_time
         self.track_history = {}
         # Track ReID features: track_id -> embedding/histogram
@@ -324,7 +328,7 @@ class CameraWorker(threading.Thread):
                 persist=True, 
                 device=device,
                 classes=[0, 2, 3, 5, 7], # 0: person, 2: car, 3: motorcycle, 5: bus, 7: truck
-                imgsz=640,
+                imgsz=1280,
                 conf=0.08, # Base confidence threshold to filter out low-level noise before tracking (lowered to 0.08 for weak matching)
                 iou=0.45,
                 tracker="app/custom_tracker.yaml", # Custom tracker parameters
