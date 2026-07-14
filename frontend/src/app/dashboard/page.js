@@ -2380,7 +2380,654 @@ export default function DashboardPage() {
                 </div>
               )}
             </div>
+            )
+
+            {/* TAB: MONITORAR VAGA NA RUA */}
+            {activeTab === "monitorar_vaga" && (
+              <div style={styles.tabContent}>
+                <div style={styles.sectionHeader}>
+                  <h2 style={styles.sectionTitle}>Monitorar Vaga na Rua</h2>
+                </div>
+
+                <div style={styles.tabGrid}>
+                  {/* Ativação / Cadastro */}
+                  <div style={styles.formCard} className="glass-panel">
+                    <h3 style={styles.formTitle}>Marcar Vaga Estacionada</h3>
+                    <div style={styles.formElement}>
+                      <div style={{ display: "flex", flexDirection: "column", gap: "6px" }}>
+                        <label style={{ color: "#fff", fontSize: "14px", marginBottom: "6px" }}>Selecione o seu Veículo</label>
+                        <select
+                          value={selectedVehicleId}
+                          onChange={(e) => setSelectedVehicleId(e.target.value)}
+                          className="input-field"
+                          style={{ appearance: "auto" }}
+                        >
+                          <option value="">Selecione o seu Veículo</option>
+                          {vehicles.map((v) => (
+                            <option key={v.id} value={v.id}>
+                              {v.brand} {v.model} ({v.plate})
+                            </option>
+                          ))}
+                        </select>
+                      </div>
+
+                      <div style={{ display: "flex", flexDirection: "column", gap: "6px", marginTop: "12px" }}>
+                        <label style={{ color: "#fff", fontSize: "14px", marginBottom: "6px" }}>Selecione a Câmera</label>
+                        <select
+                          value={selectedCameraForMonitoring}
+                          onChange={(e) => setSelectedCameraForMonitoring(e.target.value)}
+                          className="input-field"
+                          style={{ appearance: "auto" }}
+                        >
+                          <option value="">Selecione a Câmera</option>
+                          {cameras.map((c) => (
+                            <option key={c.id} value={c.id}>
+                              {c.name} {c.location_name ? `- ${c.location_name}` : ""}
+                            </option>
+                          ))}
+                        </select>
+                      </div>
+
+                      <button
+                        onClick={() => {
+                          if (!selectedVehicleId) {
+                            alert("Selecione um veículo.");
+                            return;
+                          }
+                          if (!selectedCameraForMonitoring) {
+                            alert("Selecione uma câmera.");
+                            return;
+                          }
+                          setTempPoints([]);
+                          setIsDrawingMonitoringSpot(true);
+                        }}
+                        className="btn-primary"
+                        style={{ marginTop: "20px" }}
+                      >
+                        Marcar Vaga na Câmera
+                      </button>
+                    </div>
+                  </div>
+
+                  {/* Vagas monitoradas ativas */}
+                  <div style={styles.tableCard} className="glass-panel">
+                    <h3 style={styles.formTitle}>Suas Vagas Monitoradas</h3>
+                    {isMobile ? (
+                      <div style={{ display: "flex", flexDirection: "column", gap: "12px" }}>
+                        {monitorings.map((m) => {
+                          const vehicleName = vehicles.find((v) => v.id === m.vehicle_id);
+                          const carLabel = vehicleName ? `${vehicleName.brand} ${vehicleName.model} (${vehicleName.plate})` : "Veículo";
+                          const camName = cameras.find((c) => c.id === m.camera_id)?.name || "Câmera";
+                          return (
+                            <div key={m.id} style={{
+                              background: "rgba(255, 255, 255, 0.03)",
+                              border: "1px solid rgba(255, 255, 255, 0.08)",
+                              borderRadius: "12px",
+                              padding: "16px",
+                              display: "flex",
+                              flexDirection: "column",
+                              gap: "8px"
+                            }}>
+                              <div style={{ fontWeight: "600", color: "#fff" }}>{carLabel}</div>
+                              <div style={{ fontSize: "12px", color: "var(--text-secondary)" }}>
+                                📹 Câmera: {camName}
+                              </div>
+                              <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginTop: "4px" }}>
+                                <button
+                                  onClick={() => handleToggleMonitoring(m.id)}
+                                  style={{
+                                    padding: "4px 8px",
+                                    fontSize: "12px",
+                                    borderRadius: "4px",
+                                    border: "none",
+                                    cursor: "pointer",
+                                    background: m.is_active ? "var(--success)" : "var(--bg-secondary)",
+                                    color: "#fff"
+                                  }}
+                                >
+                                  {m.is_active ? "🟢 ATIVO" : "🔴 INATIVO"}
+                                </button>
+                                <button
+                                  onClick={() => handleDeleteMonitoring(m.id)}
+                                  style={{
+                                    background: "none",
+                                    border: "none",
+                                    color: "#ef4444",
+                                    cursor: "pointer"
+                                  }}
+                                >
+                                  <Trash size={16} />
+                                </button>
+                              </div>
+                            </div>
+                          );
+                        })}
+                        {monitorings.length === 0 && (
+                          <div style={{ textAlign: "center", padding: "20px", color: "var(--text-muted)" }}>
+                            Nenhum veículo sendo monitorado no momento.
+                          </div>
+                        )}
+                      </div>
+                    ) : (
+                      <table style={styles.table}>
+                        <thead>
+                          <tr style={styles.tr}>
+                            <th style={styles.th}>Veículo</th>
+                            <th style={styles.th}>Câmera</th>
+                            <th style={styles.th}>Status</th>
+                            <th style={styles.th}>Ações</th>
+                          </tr>
+                        </thead>
+                        <tbody>
+                          {monitorings.map((m) => {
+                            const vehicleName = vehicles.find((v) => v.id === m.vehicle_id);
+                            const carLabel = vehicleName ? `${vehicleName.brand} ${vehicleName.model} (${vehicleName.plate})` : "Veículo";
+                            const camName = cameras.find((c) => c.id === m.camera_id)?.name || "Câmera";
+                            return (
+                              <tr key={m.id} style={styles.tr}>
+                                <td style={styles.td}><strong>{carLabel}</strong></td>
+                                <td style={styles.td}>{camName}</td>
+                                <td style={styles.td}>
+                                  <button
+                                    onClick={() => handleToggleMonitoring(m.id)}
+                                    style={{
+                                      padding: "4px 8px",
+                                      fontSize: "12px",
+                                      borderRadius: "4px",
+                                      border: "none",
+                                      cursor: "pointer",
+                                      background: m.is_active ? "var(--success)" : "var(--bg-secondary)",
+                                      color: "#fff"
+                                    }}
+                                  >
+                                    {m.is_active ? "🟢 ATIVO" : "🔴 INATIVO"}
+                                  </button>
+                                </td>
+                                <td style={styles.td}>
+                                  <button
+                                    onClick={() => handleDeleteMonitoring(m.id)}
+                                    style={{
+                                      background: "none",
+                                      border: "none",
+                                      color: "#ef4444",
+                                      cursor: "pointer"
+                                    }}
+                                  >
+                                    <Trash size={16} />
+                                  </button>
+                                </td>
+                              </tr>
+                            );
+                          })}
+                          {monitorings.length === 0 && (
+                            <tr>
+                              <td colSpan={4} style={styles.emptyTableTd}>
+                                Nenhum veículo sendo monitorado no momento.
+                              </td>
+                            </tr>
+                          )}
+                        </tbody>
+                      </table>
+                    )}
+                  </div>
+                </div>
+
+                {/* Drawing modal for resident parking spot */}
+                {isDrawingMonitoringSpot && selectedCameraForMonitoring && (
+                  <div style={styles.modalOverlay}>
+                    <div style={{ ...styles.modalContainer, width: "640px" }} className="glass-panel">
+                      <div style={{ padding: "20px" }}>
+                        <h3 style={styles.formTitle}>Desenhe a Vaga de Estacionamento (Arraste o Dedo)</h3>
+                        <p style={{ color: "var(--text-secondary)", fontSize: "13px", marginBottom: "12px" }}>
+                          Arraste o dedo (no celular) ou o mouse para desenhar um quadrado sobre o seu veículo na câmera.
+                        </p>
+                        
+                        <div style={{ position: "relative", width: "100%", aspectRatio: "16/9", background: "#000", borderRadius: "8px", overflow: "hidden", touchAction: "none" }}>
+                          <WebRTCOverlayPlayer 
+                             streamId={selectedCameraForMonitoring} 
+                             status={cameras.find(c => c.id === selectedCameraForMonitoring)?.status} 
+                             activeMonitorings={monitorings.filter(m => m.camera_id === selectedCameraForMonitoring && m.is_active)}
+                             zones={cameras.find(c => c.id === selectedCameraForMonitoring)?.zones || []}
+                             rtspUrl={cameras.find(c => c.id === selectedCameraForMonitoring)?.rtsp_url}
+                          />
+                          <canvas
+                            onMouseDown={(e) => handleStartDrawing(e.clientX, e.clientY, e.currentTarget)}
+                            onMouseMove={(e) => handleMoveDrawing(e.clientX, e.clientY, e.currentTarget)}
+                            onMouseUp={handleEndDrawing}
+                            onTouchStart={(e) => {
+                              e.preventDefault();
+                              const touch = e.touches[0];
+                              handleStartDrawing(touch.clientX, touch.clientY, e.currentTarget);
+                            }}
+                            onTouchMove={(e) => {
+                              e.preventDefault();
+                              const touch = e.touches[0];
+                              handleMoveDrawing(touch.clientX, touch.clientY, e.currentTarget);
+                            }}
+                            onTouchEnd={(e) => {
+                              e.preventDefault();
+                              handleEndDrawing();
+                            }}
+                            style={{
+                              position: "absolute",
+                              top: 0,
+                              left: 0,
+                              width: "100%",
+                              height: "100%",
+                              cursor: "crosshair",
+                              zIndex: 10
+                            }}
+                            ref={(canvas) => {
+                              if (!canvas) return;
+                              const ctx = canvas.getContext("2d");
+                              const rect = canvas.getBoundingClientRect();
+                              canvas.width = rect.width;
+                              canvas.height = rect.height;
+                              ctx.clearRect(0, 0, canvas.width, canvas.height);
+                              
+                              // Draw user drawn rectangle
+                              if (tempPoints.length > 0) {
+                                ctx.lineWidth = 3;
+                                ctx.strokeStyle = "#10b981";
+                                ctx.fillStyle = "rgba(16, 185, 129, 0.2)";
+                                ctx.beginPath();
+                                tempPoints.forEach((pt, idx) => {
+                                  const cx = pt.x * canvas.width;
+                                  const cy = pt.y * canvas.height;
+                                  if (idx === 0) ctx.moveTo(cx, cy);
+                                  else ctx.lineTo(cx, cy);
+                                });
+                                if (tempPoints.length === 4) ctx.closePath();
+                                ctx.stroke();
+                                if (tempPoints.length === 4) ctx.fill();
+                                
+                                // Draw anchors
+                                ctx.fillStyle = "#ffffff";
+                                tempPoints.forEach((pt) => {
+                                  ctx.beginPath();
+                                  ctx.arc(pt.x * canvas.width, pt.y * canvas.height, 5, 0, 2 * Math.PI);
+                                  ctx.fill();
+                                });
+                              }
+
+                              // Draw AI suggested snapped rectangle
+                              if (showSnappingConfirm && snappedPoints.length === 4) {
+                                ctx.lineWidth = 2;
+                                ctx.strokeStyle = "#f59e0b";
+                                ctx.fillStyle = "rgba(245, 158, 11, 0.15)";
+                                ctx.setLineDash([6, 4]); // dashed line
+                                ctx.beginPath();
+                                snappedPoints.forEach((pt, idx) => {
+                                  const cx = pt.x * canvas.width;
+                                  const cy = pt.y * canvas.height;
+                                  if (idx === 0) ctx.moveTo(cx, cy);
+                                  else ctx.lineTo(cx, cy);
+                                });
+                                ctx.closePath();
+                                ctx.stroke();
+                                ctx.fill();
+                                ctx.setLineDash([]); // reset dash
+
+                                // Draw AI label
+                                ctx.fillStyle = "#f59e0b";
+                                ctx.font = "bold 12px sans-serif";
+                                ctx.fillText("🤖 Sugestão da IA", snappedPoints[0].x * canvas.width + 4, snappedPoints[0].y * canvas.height - 6);
+                              }
+                            }}
+                          />
+                        </div>
+
+                        {showSnappingConfirm && (
+                          <div style={{
+                            background: "rgba(245, 158, 11, 0.1)",
+                            border: "1px solid rgba(245, 158, 11, 0.3)",
+                            borderRadius: "8px",
+                            padding: "14px",
+                            marginTop: "16px",
+                            display: "flex",
+                            flexDirection: "column",
+                            gap: "10px"
+                          }}>
+                            <p style={{ color: "#fef3c7", fontSize: "14px", margin: 0, lineHeight: "1.4" }}>
+                              🤖 <strong>IA Sentinel:</strong> Encontramos um veículo ({suggestedVehicleType}) na área. Deseja ajustar o quadrado exatamente sobre ele?
+                            </p>
+                            <div style={{ display: "flex", gap: "8px", flexWrap: "wrap" }}>
+                              <button
+                                onClick={() => {
+                                  setTempPoints(snappedPoints);
+                                  setShowSnappingConfirm(false);
+                                }}
+                                className="btn-primary"
+                                style={{ padding: "6px 12px", fontSize: "12px", background: "#f59e0b", borderColor: "#d97706" }}
+                              >
+                                Sim, Ajustar
+                              </button>
+                              <button
+                                onClick={() => {
+                                  setShowSnappingConfirm(false);
+                                }}
+                                className="btn-secondary"
+                                style={{ padding: "6px 12px", fontSize: "12px", background: "rgba(255,255,255,0.05)", border: "1px solid rgba(255,255,255,0.15)" }}
+                              >
+                                Não, Manter Meu Desenho
+                              </button>
+                              <button
+                                onClick={() => {
+                                  setShowSnappingConfirm(false);
+                                  setTempPoints([]);
+                                }}
+                                className="btn-secondary"
+                                style={{ padding: "6px 12px", fontSize: "12px", color: "#ef4444", border: "1px solid rgba(239,68,68,0.3)" }}
+                              >
+                                Refazer
+                              </button>
+                            </div>
+                          </div>
+                        )}
+                        
+                        <div style={{ display: "flex", justifyContent: "flex-end", gap: "12px", marginTop: "16px" }}>
+                          <button 
+                            onClick={() => {
+                              setTempPoints([]);
+                              setShowSnappingConfirm(false);
+                            }} 
+                            className="btn-secondary"
+                            style={{ padding: "8px 16px" }}
+                          >
+                            Limpar
+                          </button>
+                          <button 
+                            onClick={() => {
+                              setIsDrawingMonitoringSpot(false);
+                              setTempPoints([]);
+                              setShowSnappingConfirm(false);
+                            }} 
+                            className="btn-secondary"
+                            style={{ padding: "8px 16px" }}
+                          >
+                            Cancelar
+                          </button>
+                          <button 
+                            onClick={() => {
+                              if (tempPoints.length !== 4) {
+                                alert("Arraste o dedo ou o mouse para desenhar a vaga.");
+                                return;
+                              }
+                              handleCreateMonitoring(tempPoints);
+                            }} 
+                            className="btn-primary"
+                            style={{ padding: "8px 16px" }}
+                            disabled={showSnappingConfirm}
+                          >
+                            Ativar Monitoramento
+                          </button>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                )}
+              </div>
             )}
+
+            {/* TAB 5: FATURAMENTO & COBRANÇA */}
+            {activeTab === "faturamento" && (role === "admin_condominio" || role === "administradora") && (
+              <div style={styles.tabContent}>
+                <div style={styles.sectionHeader}>
+                  <h2 style={styles.sectionTitle}>Gerenciamento de Planos e Cobrança</h2>
+                </div>
+
+                <div style={styles.tabGrid}>
+                  {/* Active subscription info */}
+                  <div style={styles.formCard} className="glass-panel">
+                    <h3 style={styles.formTitle}>Sua Assinatura</h3>
+                    <div style={styles.subDetail}>
+                      <p>Status: <strong style={{ color: "var(--success)" }}>{subscription.status.toUpperCase()}</strong></p>
+                      <p>Plano Atual: <strong>{plans.find((p) => p.id === subscription.plan_id)?.name || "Starter"}</strong></p>
+                      <p>Validade: <strong>{new Date(subscription.current_period_end).toLocaleDateString()}</strong></p>
+                    </div>
+
+                    <div style={{ marginTop: "24px" }}>
+                      <h4 style={{ color: "#fff", marginBottom: "12px" }}>Alterar Plano</h4>
+                      <div style={styles.plansList}>
+                        {plans.map((p) => (
+                          <div key={p.id} style={styles.planItem} className="glass-card">
+                            <div>
+                              <strong>{p.name}</strong>
+                              <p style={{ fontSize: "12px", color: "var(--text-muted)" }}>
+                                Limite: {p.max_cameras} câmeras | {p.video_retention_days} dias de vídeo
+                              </p>
+                            </div>
+                            <button 
+                              onClick={() => {
+                                fetch(`${getBackendUrl()}/api/billing/subscribe?plan_id=${p.id}`, {
+                                  method: "POST",
+                                  headers: { Authorization: `Bearer ${token}` }
+                                }).then((res) => {
+                                  if (res.ok) {
+                                    alert("Inscrição efetuada! Pague a fatura gerada.");
+                                    fetchData(token, role);
+                                  }
+                                });
+                              }} 
+                              className="btn-primary" 
+                              style={{ padding: "6px 12px", fontSize: "13px" }}
+                            >
+                              R$ {p.price_cents / 100}
+                            </button>
+                          </div>
+                        ))}
+                      </div>
+                    </div>
+                  </div>
+
+                  {/* Invoices list */}
+                  <div style={styles.tableCard} className="glass-panel">
+                    <h3 style={styles.formTitle}>Faturas Emitidas (Stripe)</h3>
+                    {isMobile ? (
+                      <div style={{ display: "flex", flexDirection: "column", gap: "12px" }}>
+                        {invoices.map((inv) => (
+                          <div key={inv.id} style={{
+                            background: "rgba(255, 255, 255, 0.03)",
+                            border: "1px solid rgba(255, 255, 255, 0.08)",
+                            borderRadius: "12px",
+                            padding: "16px",
+                            display: "flex",
+                            flexDirection: "column",
+                            gap: "8px"
+                          }}>
+                            <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
+                              <span style={{ fontWeight: "600", color: "#fff" }}>R$ {inv.amount_cents / 100}</span>
+                              <span style={{ fontSize: "12px", color: "var(--text-muted)" }}>
+                                📅 Vencimento: {new Date(inv.due_date).toLocaleDateString()}
+                              </span>
+                            </div>
+                            <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginTop: "4px" }}>
+                              <div>
+                                {inv.status === "paid" ? (
+                                  <span style={{ color: "var(--success)", fontSize: "12px" }}>Pago</span>
+                                ) : (
+                                  <span style={{ color: "var(--warning)", fontSize: "12px" }}>Pendente</span>
+                                )}
+                              </div>
+                              {inv.status !== "paid" && (
+                                <button onClick={() => handlePayInvoice(inv.id)} style={styles.btnApprove}>
+                                  Pagar
+                                </button>
+                              )}
+                            </div>
+                          </div>
+                        ))}
+                      </div>
+                    ) : (
+                      <table style={styles.table}>
+                        <thead>
+                          <tr style={styles.tr}>
+                            <th style={styles.th}>Vencimento</th>
+                            <th style={styles.th}>Valor</th>
+                            <th style={styles.th}>Status</th>
+                            <th style={styles.th}>Ação</th>
+                          </tr>
+                        </thead>
+                        <tbody>
+                          {invoices.map((inv) => (
+                            <tr key={inv.id} style={styles.tr}>
+                              <td style={styles.td}>{new Date(inv.due_date).toLocaleDateString()}</td>
+                              <td style={styles.td}>R$ {inv.amount_cents / 100}</td>
+                              <td style={styles.td}>
+                                {inv.status === "paid" ? (
+                                  <span style={{ color: "var(--success)" }}>Pago</span>
+                                ) : (
+                                  <span style={{ color: "var(--warning)" }}>Pendente</span>
+                                )}
+                              </td>
+                              <td style={styles.td}>
+                                {inv.status !== "paid" && (
+                                  <button onClick={() => handlePayInvoice(inv.id)} style={styles.btnApprove}>
+                                    Pagar
+                                  </button>
+                                )}
+                              </td>
+                            </tr>
+                          ))}
+                        </tbody>
+                      </table>
+                    )}
+                  </div>
+                </div>
+              </div>
+            )}
+
+            {/* Fullscreen Expanded Camera Modal */}
+            {expandedCameraId && (
+              <div 
+                ref={modalRef}
+                style={{
+                  ...styles.modalOverlay,
+                  background: isMobile ? "#000" : "rgba(0,0,0,0.8)"
+                }} 
+                className={isClosingModal ? "modal-overlay-closing" : "modal-overlay-open"}
+              >
+                {isMobile ? (
+                  /* Fullscreen Mobile View */
+                  <div 
+                    style={{ 
+                      position: "relative", 
+                      width: "100vw", 
+                      height: "100vh", 
+                      background: "#000", 
+                      display: "flex", 
+                      alignItems: "center", 
+                      justifyContent: "center",
+                      overflow: "hidden"
+                    }}
+                    className={isClosingModal ? "modal-container-closing" : "modal-container-open"}
+                  >
+                    {/* Floating Header Badge */}
+                    <div style={{
+                      position: "absolute",
+                      top: "16px",
+                      left: "16px",
+                      zIndex: 1000,
+                      background: "rgba(0, 0, 0, 0.6)",
+                      backdropFilter: "blur(8px)",
+                      WebkitBackdropFilter: "blur(8px)",
+                      borderRadius: "20px",
+                      padding: "6px 14px",
+                      border: "1px solid rgba(255,255,255,0.08)",
+                    }}>
+                      <span style={{ color: "#fff", fontSize: "13px", fontWeight: "600" }}>
+                        🎥 {cameras.find(c => c.id === expandedCameraId)?.name || "Câmera"}
+                      </span>
+                    </div>
+
+                    {/* Floating Close Button */}
+                    <button 
+                      onClick={closeExpandedCamera}
+                      style={{
+                        position: "absolute",
+                        top: "16px",
+                        right: "16px",
+                        zIndex: 1000,
+                        background: "rgba(0, 0, 0, 0.6)",
+                        backdropFilter: "blur(8px)",
+                        WebkitBackdropFilter: "blur(8px)",
+                        border: "1px solid rgba(255,255,255,0.08)",
+                        color: "#fff",
+                        fontSize: "20px",
+                        cursor: "pointer",
+                        width: "40px",
+                        height: "40px",
+                        borderRadius: "50%",
+                        display: "flex",
+                        alignItems: "center",
+                        justifyContent: "center",
+                        boxShadow: "0 4px 12px rgba(0,0,0,0.5)"
+                      }}
+                    >
+                      &times;
+                    </button>
+
+                    {/* 100% Fullscreen player wrapper */}
+                    <div style={{ width: "100%", height: "100%", display: "flex", alignItems: "center", justifyContent: "center" }}>
+                      <WebRTCOverlayPlayer 
+                        streamId={expandedCameraId} 
+                        status={cameras.find(c => c.id === expandedCameraId)?.status} 
+                        showDetections={true}
+                        activeMonitorings={monitorings.filter(m => m.camera_id === expandedCameraId && m.is_active)}
+                        zones={cameras.find(c => c.id === expandedCameraId)?.zones || []}
+                        rtspUrl={cameras.find(c => c.id === expandedCameraId)?.rtsp_url}
+                        isFullscreen={true}
+                      />
+                    </div>
+                  </div>
+                ) : (
+                  /* Standard Desktop Modal View */
+                  <div 
+                    style={{ 
+                      ...styles.modalContainer, 
+                      width: "90vw", 
+                      maxWidth: "960px", 
+                      height: "auto", 
+                      maxHeight: "90vh", 
+                      overflowY: "hidden", 
+                      display: "flex", 
+                      flexDirection: "column" 
+                    }} 
+                    className={`glass-panel ${isClosingModal ? "modal-container-closing" : "modal-container-open"}`}
+                  >
+                    <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", padding: "16px 20px", borderBottom: "1px solid rgba(255,255,255,0.08)" }}>
+                      <h3 style={{ margin: 0, color: "#fff" }}>
+                        {cameras.find(c => c.id === expandedCameraId)?.name || "Câmera Expandida"}
+                      </h3>
+                      <button 
+                        onClick={closeExpandedCamera}
+                        style={{
+                          background: "none",
+                          border: "none",
+                          color: "#fff",
+                          fontSize: "24px",
+                          cursor: "pointer",
+                          lineHeight: "1"
+                        }}
+                      >
+                        &times;
+                      </button>
+                    </div>
+                    <div style={{ flex: 1, position: "relative", background: "#000", overflow: "hidden" }}>
+                      <WebRTCOverlayPlayer 
+                        streamId={expandedCameraId} 
+                        status={cameras.find(c => c.id === expandedCameraId)?.status} 
+                        showDetections={true}
+                        activeMonitorings={monitorings.filter(m => m.camera_id === expandedCameraId && m.is_active)}
+                        zones={cameras.find(c => c.id === expandedCameraId)?.zones || []}
+                        rtspUrl={cameras.find(c => c.id === expandedCameraId)?.rtsp_url}
+                        isFullscreen={true}
+                      />
+                    </div>
+                  </div>
+                )}
+              </div>
+            )
           </main>
         </div>
         {isMobile && (
