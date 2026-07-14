@@ -26,6 +26,7 @@ import torch
 device = "cuda" if torch.cuda.is_available() else "cpu"
 print(f"Initializing YOLOv26 on device: {device}")
 model = YOLO("yolo26m.pt")
+yolo_lock = threading.Lock()
 
 active_workers = {}  # camera_id -> worker thread control flag
 
@@ -322,18 +323,22 @@ class CameraWorker(threading.Thread):
 
             # Process every frame for smooth 30 FPS tracking
 
+            # Set imgsz to 1280 ONLY for the high-altitude zve10 camera, and 640 for other cameras
+            imgsz_val = 1280 if "zve10" in self.name.lower() else 640
+
             # Run YOLO inference with Custom BoT-SORT tracker and optimized parameters
-            results = model.track(
-                frame, 
-                persist=True, 
-                device=device,
-                classes=[0, 2, 3, 5, 7], # 0: person, 2: car, 3: motorcycle, 5: bus, 7: truck
-                imgsz=1280,
-                conf=0.08, # Base confidence threshold to filter out low-level noise before tracking (lowered to 0.08 for weak matching)
-                iou=0.45,
-                tracker="app/custom_tracker.yaml", # Custom tracker parameters
-                verbose=False
-            )
+            with yolo_lock:
+                results = model.track(
+                    frame, 
+                    persist=True, 
+                    device=device,
+                    classes=[0, 2, 3, 5, 7], # 0: person, 2: car, 3: motorcycle, 5: bus, 7: truck
+                    imgsz=imgsz_val,
+                    conf=0.08, # Base confidence threshold to filter out low-level noise before tracking (lowered to 0.08 for weak matching)
+                    iou=0.45,
+                    tracker="app/custom_tracker.yaml", # Custom tracker parameters
+                    verbose=False
+                )
             
             if not results or len(results) == 0:
                 continue
