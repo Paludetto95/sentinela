@@ -323,8 +323,8 @@ class CameraWorker(threading.Thread):
 
             # Process every frame for smooth 30 FPS tracking
 
-            # Set imgsz to 1280 ONLY for the high-altitude zve10 camera, and 640 for other cameras
-            imgsz_val = 1280 if "zve10" in self.name.lower() else 640
+            # Use imgsz=1280 for all cameras since Emeet is also a high-altitude camera
+            imgsz_val = 1280
 
             # Run YOLO inference with Custom BoT-SORT tracker and optimized parameters
             with yolo_lock:
