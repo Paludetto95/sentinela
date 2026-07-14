@@ -1871,24 +1871,6 @@ export default function DashboardPage() {
                     <div style={styles.formCard} className="glass-panel">
                       <h3 style={styles.formTitle}>Cadastrar Câmera</h3>
                       <form onSubmit={handleCreateCamera} style={styles.formElement}>
-                        <div style={{ display: "flex", alignItems: "center", gap: "8px", marginBottom: "12px" }}>
-                          <input
-                            type="checkbox"
-                            id="super_admin_is_webcam"
-                            checked={isWebcamSelected}
-                            onChange={(e) => {
-                              setIsWebcamSelected(e.target.checked);
-                              setNewCamera({
-                                ...newCamera,
-                                rtsp_url: e.target.checked ? "" : newCamera.rtsp_url
-                              });
-                            }}
-                            style={{ cursor: "pointer", width: "16px", height: "16px" }}
-                          />
-                          <label htmlFor="super_admin_is_webcam" style={{ fontSize: "14px", fontWeight: "500", cursor: "pointer", color: "#e4e4e7" }}>
-                            Usar Webcam USB Local
-                          </label>
-                        </div>
                         <input
                           type="text" required placeholder="Nome da Câmera"
                           value={newCamera.name} onChange={(e) => setNewCamera({...newCamera, name: e.target.value})}
@@ -1899,17 +1881,11 @@ export default function DashboardPage() {
                           value={newCamera.description} onChange={(e) => setNewCamera({...newCamera, description: e.target.value})}
                           className="input-field"
                         />
-                        {!isWebcamSelected ? (
-                          <input
-                            type="text" required placeholder="Link RTSP (ou IP Webcam)"
-                            value={newCamera.rtsp_url} onChange={(e) => setNewCamera({...newCamera, rtsp_url: e.target.value})}
-                            className="input-field"
-                          />
-                        ) : (
-                          <div style={{ fontSize: "12px", color: "#10b981", padding: "10px", border: "1px dashed #10b981", borderRadius: "6px", marginBottom: "10px", background: "rgba(16, 185, 129, 0.05)" }}>
-                            📹 Webcam Local USB ativa. A URL do canal de streaming será gerada automaticamente ao criar.
-                          </div>
-                        )}
+                        <input
+                          type="text" required placeholder="Link RTSP (ou IP Webcam)"
+                          value={newCamera.rtsp_url} onChange={(e) => setNewCamera({...newCamera, rtsp_url: e.target.value})}
+                          className="input-field"
+                        />
                         <input
                           type="text" placeholder="Localização (Ex: Portão Principal)"
                           value={newCamera.location_name} onChange={(e) => setNewCamera({...newCamera, location_name: e.target.value})}
@@ -2235,24 +2211,6 @@ export default function DashboardPage() {
                     <div style={styles.formCard} className="glass-panel">
                       <h3 style={styles.formTitle}>Cadastrar Câmera</h3>
                       <form onSubmit={handleCreateCamera} style={styles.formElement}>
-                        <div style={{ display: "flex", alignItems: "center", gap: "8px", marginBottom: "12px" }}>
-                          <input
-                            type="checkbox"
-                            id="condo_admin_is_webcam"
-                            checked={isWebcamSelected}
-                            onChange={(e) => {
-                              setIsWebcamSelected(e.target.checked);
-                              setNewCamera({
-                                ...newCamera,
-                                rtsp_url: e.target.checked ? "" : newCamera.rtsp_url
-                              });
-                            }}
-                            style={{ cursor: "pointer", width: "16px", height: "16px" }}
-                          />
-                          <label htmlFor="condo_admin_is_webcam" style={{ fontSize: "14px", fontWeight: "500", cursor: "pointer", color: "#e4e4e7" }}>
-                            Usar Webcam USB Local
-                          </label>
-                        </div>
                         <input
                           type="text" required placeholder="Nome da Câmera"
                           value={newCamera.name} onChange={(e) => setNewCamera({...newCamera, name: e.target.value})}
@@ -2263,17 +2221,11 @@ export default function DashboardPage() {
                           value={newCamera.description} onChange={(e) => setNewCamera({...newCamera, description: e.target.value})}
                           className="input-field"
                         />
-                        {!isWebcamSelected ? (
-                          <input
-                            type="text" required placeholder="Link RTSP (ou IP Webcam)"
-                            value={newCamera.rtsp_url} onChange={(e) => setNewCamera({...newCamera, rtsp_url: e.target.value})}
-                            className="input-field"
-                          />
-                        ) : (
-                          <div style={{ fontSize: "12px", color: "#10b981", padding: "10px", border: "1px dashed #10b981", borderRadius: "6px", marginBottom: "10px", background: "rgba(16, 185, 129, 0.05)" }}>
-                            📹 Webcam Local USB ativa. A URL do canal de streaming será gerada automaticamente ao criar.
-                          </div>
-                        )}
+                        <input
+                          type="text" required placeholder="Link RTSP (ou IP Webcam)"
+                          value={newCamera.rtsp_url} onChange={(e) => setNewCamera({...newCamera, rtsp_url: e.target.value})}
+                          className="input-field"
+                        />
                         <input
                           type="text" placeholder="Localização (Ex: Portão Principal)"
                           value={newCamera.location_name} onChange={(e) => setNewCamera({...newCamera, location_name: e.target.value})}
