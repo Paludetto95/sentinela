@@ -2380,7 +2380,7 @@ export default function DashboardPage() {
                 </div>
               )}
             </div>
-            )
+            )}
 
             {/* TAB: MONITORAR VAGA NA RUA */}
             {activeTab === "monitorar_vaga" && (
@@ -3027,7 +3027,7 @@ export default function DashboardPage() {
                   </div>
                 )}
               </div>
-            )
+            )}
           </main>
         </div>
         {isMobile && (
