@@ -117,6 +117,7 @@ class ThreadedCamera:
         self.ret = False
         self.frame = None
         self.last_frame_time = 0.0
+        self.frame_id = 0
         self.stopped = False
         self.lock = threading.Lock()
         
@@ -152,6 +153,7 @@ class ThreadedCamera:
                             self.ret = True
                             self.frame = frame
                             self.last_frame_time = time.time()
+                            self.frame_id += 1
                     else:
                         consecutive_failures += 1
                         if consecutive_failures > 50: # ~0.5 second of continuous failures
@@ -181,8 +183,8 @@ class ThreadedCamera:
         with self.lock:
             # If we haven't received a new frame in 15 seconds, treat it as offline/disconnected
             if self.frame is not None and (time.time() - self.last_frame_time < 15.0):
-                return self.ret, self.frame.copy()
-            return False, None
+                return self.ret, self.frame.copy(), self.frame_id
+            return False, None, 0
 
     def release(self):
         self.stopped = True
@@ -273,14 +275,20 @@ class CameraWorker(threading.Thread):
         cap = ThreadedCamera(source, self.name, is_numeric)
         
         frame_count = 0
+        last_processed_frame_id = 0
         
         while not self.stopped:
             ret = False
             frame = None
             if cap is not None and cap.isOpened():
                 try:
-                    ret, raw_frame = cap.read()
+                    ret, raw_frame, frame_id = cap.read()
                     if ret and raw_frame is not None and raw_frame.size > 0:
+                        if frame_id == last_processed_frame_id:
+                            # Frame hasn't changed, sleep briefly to yield GIL and save resources
+                            time.sleep(0.003)
+                            continue
+                        last_processed_frame_id = frame_id
                         try:
                             # Auto-rotate vertical streams (height > width) to horizontal
                             h_raw, w_raw = raw_frame.shape[:2]
