@@ -98,6 +98,7 @@ export default function DashboardPage() {
   const [viewingEvent, setViewingEvent] = useState(null);
 
   const [loading, setLoading] = useState(true);
+  const [isInitialLoad, setIsInitialLoad] = useState(true);
   const [apiError, setApiError] = useState("");
 
   // Monitorar vaga states
@@ -327,7 +328,9 @@ export default function DashboardPage() {
   }, [token, role]);
 
   const fetchData = async (authToken, userRole) => {
-    setLoading(true);
+    if (isInitialLoad) {
+      setLoading(true);
+    }
     setApiError("");
     const headers = { Authorization: `Bearer ${authToken}` };
 
@@ -397,6 +400,7 @@ export default function DashboardPage() {
       setApiError("Falha ao comunicar com os servidores do Sentinel AI.");
     } finally {
       setLoading(false);
+      setIsInitialLoad(false);
     }
   };
 
