@@ -3,7 +3,7 @@
 import { useState, useRef, useEffect } from "react";
 import WebRTCOverlayPlayer from "./WebRTCOverlayPlayer";
 
-export default function CameraZoneDrawer({ cameraId, status, zones = [], onSave, onDeleteZone, onCancel }) {
+export default function CameraZoneDrawer({ cameraId, status, zones = [], onSave, onDeleteZone, onCancel, cameraName = "" }) {
   const canvasRef = useRef(null);
   const containerRef = useRef(null);
   const [points, setPoints] = useState([]);
@@ -284,6 +284,7 @@ export default function CameraZoneDrawer({ cameraId, status, zones = [], onSave,
           zones={zones} 
           showDetections={true}
           allowIgnore={true}
+          cameraName={cameraName}
         />
         <canvas
           ref={canvasRef}

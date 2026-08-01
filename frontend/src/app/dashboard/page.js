@@ -1331,6 +1331,7 @@ export default function DashboardPage() {
                         activeMonitorings={monitorings.filter(m => m.camera_id === cam.id && m.is_active)}
                         zones={cam.zones || []}
                         rtspUrl={cam.rtsp_url}
+                        cameraName={cam.name}
                       />
                     </div>
                     {(role in { admin_condominio: 1, administradora: 1 } || role === "super_admin") && (
@@ -1369,6 +1370,7 @@ export default function DashboardPage() {
                       onSave={handleSaveZone} 
                       onDeleteZone={handleDeleteZone}
                       onCancel={() => setShowZoneDrawer(false)} 
+                      cameraName={cameras.find(c => c.id === selectedCameraId)?.name}
                     />
                   </div>
                 </div>
@@ -2550,13 +2552,28 @@ export default function DashboardPage() {
                           Arraste o dedo (no celular) ou o mouse para desenhar um quadrado sobre o seu veículo na câmera.
                         </p>
                         
-                        <div style={{ position: "relative", width: "100%", aspectRatio: "16/9", background: "#000", borderRadius: "8px", overflow: "hidden", touchAction: "none" }}>
+                        <div style={{ 
+                          position: "relative", 
+                          width: "100%", 
+                          aspectRatio: (
+                            cameras.find(c => c.id === selectedCameraForMonitoring)?.name && (
+                              cameras.find(c => c.id === selectedCameraForMonitoring).name.toLowerCase().includes("girar") || 
+                              cameras.find(c => c.id === selectedCameraForMonitoring).name.toLowerCase().includes("rotate") || 
+                              cameras.find(c => c.id === selectedCameraForMonitoring).name.toLowerCase().includes("vertical")
+                            )
+                          ) ? "9/16" : "16/9", 
+                          background: "#000", 
+                          borderRadius: "8px", 
+                          overflow: "hidden", 
+                          touchAction: "none" 
+                        }}>
                           <WebRTCOverlayPlayer 
                              streamId={selectedCameraForMonitoring} 
                              status={cameras.find(c => c.id === selectedCameraForMonitoring)?.status} 
                              activeMonitorings={monitorings.filter(m => m.camera_id === selectedCameraForMonitoring && m.is_active)}
                              zones={cameras.find(c => c.id === selectedCameraForMonitoring)?.zones || []}
                              rtspUrl={cameras.find(c => c.id === selectedCameraForMonitoring)?.rtsp_url}
+                             cameraName={cameras.find(c => c.id === selectedCameraForMonitoring)?.name}
                           />
                           <canvas
                             onMouseDown={(e) => handleStartDrawing(e.clientX, e.clientY, e.currentTarget)}
@@ -2945,6 +2962,7 @@ export default function DashboardPage() {
                         zones={cameras.find(c => c.id === expandedCameraId)?.zones || []}
                         rtspUrl={cameras.find(c => c.id === expandedCameraId)?.rtsp_url}
                         isFullscreen={true}
+                        cameraName={cameras.find(c => c.id === expandedCameraId)?.name}
                       />
                     </div>
                   </div>
@@ -2990,6 +3008,7 @@ export default function DashboardPage() {
                         zones={cameras.find(c => c.id === expandedCameraId)?.zones || []}
                         rtspUrl={cameras.find(c => c.id === expandedCameraId)?.rtsp_url}
                         isFullscreen={true}
+                        cameraName={cameras.find(c => c.id === expandedCameraId)?.name}
                       />
                     </div>
                   </div>
