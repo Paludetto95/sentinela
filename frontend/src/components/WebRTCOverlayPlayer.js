@@ -27,6 +27,7 @@ export default function WebRTCOverlayPlayer({
   const [loading, setLoading] = useState(false);
   const [detections, setDetections] = useState([]);
   const [imgRetry, setImgRetry] = useState(0);
+  const [aspectRatio, setAspectRatio] = useState("16/9");
   
   // Drag-to-pan state for mobile landscape viewports
   const [pan, setPan] = useState({ x: 0, y: 0 });
@@ -36,6 +37,7 @@ export default function WebRTCOverlayPlayer({
   // Reset pan when camera changes
   useEffect(() => {
     setPan({ x: 0, y: 0 });
+    setAspectRatio("16/9");
   }, [streamId]);
 
   const handleStart = (clientX, clientY) => {
@@ -466,6 +468,7 @@ export default function WebRTCOverlayPlayer({
     <div 
       style={{
         ...styles.container,
+        aspectRatio: aspectRatio,
         transform: `translate(${pan.x}px, ${pan.y}px)`,
         cursor: isFullscreen ? (isDragging.current ? "grabbing" : "grab") : "default",
         touchAction: isFullscreen ? "none" : "auto"
@@ -681,6 +684,12 @@ export default function WebRTCOverlayPlayer({
           src={fallbackUrl}
           alt="Canal de transmissão de contingência"
           style={styles.video}
+          onLoad={(e) => {
+            const img = e.target;
+            if (img.naturalWidth && img.naturalHeight) {
+              setAspectRatio(`${img.naturalWidth}/${img.naturalHeight}`);
+            }
+          }}
           onError={() => {
             console.log("Stream fallback error, retrying in 3s...");
             setTimeout(() => {
@@ -695,6 +704,12 @@ export default function WebRTCOverlayPlayer({
           playsInline
           muted
           style={styles.video}
+          onLoadedMetadata={(e) => {
+            const v = e.target;
+            if (v.videoWidth && v.videoHeight) {
+              setAspectRatio(`${v.videoWidth}/${v.videoHeight}`);
+            }
+          }}
         />
       )}
 
