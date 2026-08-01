@@ -290,9 +290,14 @@ class CameraWorker(threading.Thread):
                             continue
                         last_processed_frame_id = frame_id
                         try:
-                            # Auto-rotate vertical streams (height > width) to horizontal
+                            # Auto-rotate vertical streams or manually rotate via name keywords (girar/rotate/vertical)
                             h_raw, w_raw = raw_frame.shape[:2]
-                            if h_raw > w_raw:
+                            name_lower = self.name.lower()
+                            if "girar270" in name_lower or "girar_ccw" in name_lower:
+                                raw_frame = cv2.rotate(raw_frame, cv2.ROTATE_90_COUNTERCLOCKWISE)
+                            elif "girar180" in name_lower:
+                                raw_frame = cv2.rotate(raw_frame, cv2.ROTATE_180)
+                            elif h_raw > w_raw or "girar" in name_lower or "rotate" in name_lower or "vertical" in name_lower:
                                 raw_frame = cv2.rotate(raw_frame, cv2.ROTATE_90_CLOCKWISE)
                                 
                             h, w = raw_frame.shape[:2]
