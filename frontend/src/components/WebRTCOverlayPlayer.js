@@ -373,7 +373,7 @@ export default function WebRTCOverlayPlayer({
     };
 
     fetchDets();
-    const interval = setInterval(fetchDets, 120); // Poll every 120ms
+    const interval = setInterval(fetchDets, 40); // Poll every 40ms (25 FPS) for real-time smooth updates
 
     return () => clearInterval(interval);
   }, [showDetections, streamId, status, isPublishing, backendUrl, token]);
@@ -639,7 +639,7 @@ export default function WebRTCOverlayPlayer({
               borderRadius: "4px",
               zIndex: 11,
               pointerEvents: "auto",
-              transition: "left 0.12s linear, top 0.12s linear, width 0.12s linear, height 0.12s linear",
+              transition: "left 0.04s linear, top 0.04s linear, width 0.04s linear, height 0.04s linear",
             }}
           >
             <span
