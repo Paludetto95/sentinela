@@ -19,7 +19,8 @@ export default function WebRTCOverlayPlayer({
   zones = [],
   allowIgnore = false,
   rtspUrl = "",
-  isFullscreen = false
+  isFullscreen = false,
+  cameraName = ""
 }) {
   const videoRef = useRef(null);
   const pcRef = useRef(null);
@@ -27,7 +28,17 @@ export default function WebRTCOverlayPlayer({
   const [loading, setLoading] = useState(false);
   const [detections, setDetections] = useState([]);
   const [imgRetry, setImgRetry] = useState(0);
-  const [aspectRatio, setAspectRatio] = useState("16/9");
+
+  const isRotated = (cameraName && (
+    cameraName.toLowerCase().includes("girar") || 
+    cameraName.toLowerCase().includes("rotate") || 
+    cameraName.toLowerCase().includes("vertical")
+  )) || (rtspUrl && (
+    rtspUrl.toLowerCase().includes("4747") ||
+    rtspUrl.toLowerCase().includes("droidcam")
+  ));
+  
+  const [aspectRatio, setAspectRatio] = useState(isRotated ? "9/16" : "16/9");
   
   // Drag-to-pan state for mobile landscape viewports
   const [pan, setPan] = useState({ x: 0, y: 0 });
@@ -37,8 +48,8 @@ export default function WebRTCOverlayPlayer({
   // Reset pan when camera changes
   useEffect(() => {
     setPan({ x: 0, y: 0 });
-    setAspectRatio("16/9");
-  }, [streamId]);
+    setAspectRatio(isRotated ? "9/16" : "16/9");
+  }, [streamId, isRotated]);
 
   const handleStart = (clientX, clientY) => {
     isDragging.current = true;

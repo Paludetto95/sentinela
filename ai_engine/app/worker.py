@@ -293,11 +293,13 @@ class CameraWorker(threading.Thread):
                             # Auto-rotate vertical streams or manually rotate via name keywords (girar/rotate/vertical)
                             h_raw, w_raw = raw_frame.shape[:2]
                             name_lower = self.name.lower()
+                            url_lower = self.rtsp_url.lower() if self.rtsp_url else ""
+                            is_droidcam = "4747" in url_lower or "droidcam" in url_lower
                             if "girar270" in name_lower or "girar_ccw" in name_lower:
                                 raw_frame = cv2.rotate(raw_frame, cv2.ROTATE_90_COUNTERCLOCKWISE)
                             elif "girar180" in name_lower:
                                 raw_frame = cv2.rotate(raw_frame, cv2.ROTATE_180)
-                            elif h_raw > w_raw or "girar" in name_lower or "rotate" in name_lower or "vertical" in name_lower:
+                            elif h_raw > w_raw or "girar" in name_lower or "rotate" in name_lower or "vertical" in name_lower or is_droidcam:
                                 raw_frame = cv2.rotate(raw_frame, cv2.ROTATE_90_CLOCKWISE)
                                 
                             h, w = raw_frame.shape[:2]
