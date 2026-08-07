@@ -476,31 +476,35 @@ export default function WebRTCOverlayPlayer({
   const fallbackUrl = `${backendUrl}/api/cameras/${streamId}/stream?token=${token || ""}&retry=${imgRetry}`;
 
   return (
-    <div 
-      style={{
-        ...styles.container,
-        aspectRatio: aspectRatio,
-        transform: `translate(${pan.x}px, ${pan.y}px)`,
-        cursor: isFullscreen ? (isDragging.current ? "grabbing" : "grab") : "default",
-        touchAction: isFullscreen ? "none" : "auto"
-      }}
-      onMouseDown={isFullscreen ? (e) => handleStart(e.clientX, e.clientY) : undefined}
-      onMouseMove={isFullscreen ? (e) => handleMove(e.clientX, e.clientY) : undefined}
-      onMouseUp={isFullscreen ? handleEnd : undefined}
-      onMouseLeave={isFullscreen ? handleEnd : undefined}
-      onTouchStart={isFullscreen ? (e) => {
-        if (e.touches.length === 1) {
-          handleStart(e.touches[0].clientX, e.touches[0].clientY);
-        }
-      } : undefined}
-      onTouchMove={isFullscreen ? (e) => {
-        if (e.touches.length === 1) {
-          handleMove(e.touches[0].clientX, e.touches[0].clientY);
-        }
-      } : undefined}
-      onTouchEnd={isFullscreen ? handleEnd : undefined}
-      onDoubleClick={isFullscreen ? handleDoubleClick : undefined}
-    >
+    <div style={styles.container}>
+      <div 
+        style={{
+          position: "relative",
+          height: "100%",
+          aspectRatio: aspectRatio,
+          margin: "0 auto",
+          overflow: "hidden",
+          transform: `translate(${pan.x}px, ${pan.y}px)`,
+          cursor: isFullscreen ? (isDragging.current ? "grabbing" : "grab") : "default",
+          touchAction: isFullscreen ? "none" : "auto"
+        }}
+        onMouseDown={isFullscreen ? (e) => handleStart(e.clientX, e.clientY) : undefined}
+        onMouseMove={isFullscreen ? (e) => handleMove(e.clientX, e.clientY) : undefined}
+        onMouseUp={isFullscreen ? handleEnd : undefined}
+        onMouseLeave={isFullscreen ? handleEnd : undefined}
+        onTouchStart={isFullscreen ? (e) => {
+          if (e.touches.length === 1) {
+            handleStart(e.touches[0].clientX, e.touches[0].clientY);
+          }
+        } : undefined}
+        onTouchMove={isFullscreen ? (e) => {
+          if (e.touches.length === 1) {
+            handleMove(e.touches[0].clientX, e.touches[0].clientY);
+          }
+        } : undefined}
+        onTouchEnd={isFullscreen ? handleEnd : undefined}
+        onDoubleClick={isFullscreen ? handleDoubleClick : undefined}
+      >
       {loading && <div style={styles.overlay}>Conectando...</div>}
 
       {/* SVG Polygons for Zones and Active Monitorings */}
@@ -723,6 +727,7 @@ export default function WebRTCOverlayPlayer({
           }}
         />
       )}
+      </div>
 
       {/* Webcam overlay controls */}
       {renderWebcamControls()}
