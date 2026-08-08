@@ -852,7 +852,7 @@ export default function DashboardPage() {
 
       ctx.fillStyle = "#f59e0b";
       ctx.font = "bold 12px sans-serif";
-      ctx.fillText("🤖 Sugestão da IA", snappedPoints[0].x * canvas.width + 4, snappedPoints[0].y * canvas.height - 6);
+      ctx.fillText("Sugestao da IA", snappedPoints[0].x * canvas.width + 4, snappedPoints[0].y * canvas.height - 6);
     }
   }, [tempPoints, snappedPoints, showSnappingConfirm]);
 
