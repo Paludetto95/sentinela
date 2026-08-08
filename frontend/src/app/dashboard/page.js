@@ -762,33 +762,40 @@ export default function DashboardPage() {
     }
   };
 
-  const handleStartDrawing = (clientX, clientY, target) => {
-    const rect = target.getBoundingClientRect();
-    const x = (clientX - rect.left) / rect.width;
-    const y = (clientY - rect.top) / rect.height;
+  const getMonitoringCoords = (clientX, clientY) => {
+    const canvas = monitoringCanvasRef.current;
+    if (!canvas) return null;
+    const rect = canvas.getBoundingClientRect();
+    if (!rect.width || !rect.height) return null;
+    const x = Math.max(0, Math.min(1, (clientX - rect.left) / rect.width));
+    const y = Math.max(0, Math.min(1, (clientY - rect.top) / rect.height));
+    return { x, y };
+  };
+
+  const handleStartDrawing = (clientX, clientY) => {
+    const coords = getMonitoringCoords(clientX, clientY);
+    if (!coords) return;
     
-    setStartPoint({ x, y });
+    setStartPoint(coords);
     setIsDraggingSpot(true);
     setShowSnappingConfirm(false);
     setTempPoints([
-      { x, y },
-      { x, y },
-      { x, y },
-      { x, y }
+      { x: coords.x, y: coords.y },
+      { x: coords.x, y: coords.y },
+      { x: coords.x, y: coords.y },
+      { x: coords.x, y: coords.y }
     ]);
   };
 
-  const handleMoveDrawing = (clientX, clientY, target) => {
+  const handleMoveDrawing = (clientX, clientY) => {
     if (!isDraggingSpot || !startPoint) return;
+    const coords = getMonitoringCoords(clientX, clientY);
+    if (!coords) return;
     
-    const rect = target.getBoundingClientRect();
-    const x = Math.max(0, Math.min(1, (clientX - rect.left) / rect.width));
-    const y = Math.max(0, Math.min(1, (clientY - rect.top) / rect.height));
-    
-    const xMin = Math.min(startPoint.x, x);
-    const xMax = Math.max(startPoint.x, x);
-    const yMin = Math.min(startPoint.y, y);
-    const yMax = Math.max(startPoint.y, y);
+    const xMin = Math.min(startPoint.x, coords.x);
+    const xMax = Math.max(startPoint.x, coords.x);
+    const yMin = Math.min(startPoint.y, coords.y);
+    const yMax = Math.max(startPoint.y, coords.y);
     
     setTempPoints([
       { x: xMin, y: yMin },
@@ -2647,13 +2654,7 @@ export default function DashboardPage() {
                         <div style={{ 
                           position: "relative", 
                           width: "100%", 
-                          aspectRatio: (
-                            cameras.find(c => c.id === selectedCameraForMonitoring)?.name && (
-                              cameras.find(c => c.id === selectedCameraForMonitoring).name.toLowerCase().includes("girar") || 
-                              cameras.find(c => c.id === selectedCameraForMonitoring).name.toLowerCase().includes("rotate") || 
-                              cameras.find(c => c.id === selectedCameraForMonitoring).name.toLowerCase().includes("vertical")
-                            )
-                          ) ? "9/16" : "16/9", 
+                          aspectRatio: "16/9", 
                           background: "#000", 
                           borderRadius: "8px", 
                           overflow: "hidden", 
@@ -2668,18 +2669,20 @@ export default function DashboardPage() {
                              cameraName={cameras.find(c => c.id === selectedCameraForMonitoring)?.name}
                           >
                             <canvas
-                            onMouseDown={(e) => handleStartDrawing(e.clientX, e.clientY, e.currentTarget)}
-                            onMouseMove={(e) => handleMoveDrawing(e.clientX, e.clientY, e.currentTarget)}
+                            onMouseDown={(e) => handleStartDrawing(e.clientX, e.clientY)}
+                            onMouseMove={(e) => handleMoveDrawing(e.clientX, e.clientY)}
                             onMouseUp={handleEndDrawing}
                             onTouchStart={(e) => {
                               e.preventDefault();
-                              const touch = e.touches[0];
-                              handleStartDrawing(touch.clientX, touch.clientY, e.currentTarget);
+                              if (e.touches.length > 0) {
+                                handleStartDrawing(e.touches[0].clientX, e.touches[0].clientY);
+                              }
                             }}
                             onTouchMove={(e) => {
                               e.preventDefault();
-                              const touch = e.touches[0];
-                              handleMoveDrawing(touch.clientX, touch.clientY, e.currentTarget);
+                              if (e.touches.length > 0) {
+                                handleMoveDrawing(e.touches[0].clientX, e.touches[0].clientY);
+                              }
                             }}
                             onTouchEnd={(e) => {
                               e.preventDefault();

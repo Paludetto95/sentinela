@@ -751,7 +751,7 @@ const styles = {
   video: {
     width: "100%",
     height: "100%",
-    objectFit: "contain",
+    objectFit: "fill",
   },
   placeholder: {
     position: "absolute",
