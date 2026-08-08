@@ -1,0 +1,21 @@
+{
+  "name": "Sentinel AI - Segurança & Estacionamento",
+  "short_name": "Sentinel AI",
+  "description": "Plataforma SaaS de Inteligência Artificial para Monitoramento de Veículos e Segurança Patrimonial.",
+  "start_url": "/dashboard",
+  "display": "standalone",
+  "background_color": "#08080a",
+  "theme_color": "#4f46e5",
+  "icons": [
+    {
+      "src": "/logo.jpg",
+      "sizes": "192x192",
+      "type": "image/jpeg"
+    },
+    {
+      "src": "/logo.jpg",
+      "sizes": "512x512",
+      "type": "image/jpeg"
+    }
+  ]
+}

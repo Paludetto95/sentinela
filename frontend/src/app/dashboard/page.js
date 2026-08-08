@@ -454,7 +454,26 @@ export default function DashboardPage() {
         const permission = await Notification.requestPermission();
         setNotificationPermission(permission);
         if (permission === "granted") {
-          alert("Notificações de segurança ativadas com sucesso!");
+          playAlarmSound();
+          if ('serviceWorker' in navigator) {
+            navigator.serviceWorker.ready.then((registration) => {
+              registration.showNotification("Sentinel AI - Notificações Ativadas!", {
+                body: "Seu celular agora receberá alertas sonoros e de segurança em tempo real.",
+                icon: "/logo.jpg",
+                vibrate: [200, 100, 200]
+              });
+            }).catch(() => {
+              new Notification("Sentinel AI - Notificações Ativadas!", {
+                body: "Seu celular agora receberá alertas sonoros e de segurança em tempo real.",
+                icon: "/logo.jpg"
+              });
+            });
+          } else {
+            new Notification("Sentinel AI - Notificações Ativadas!", {
+              body: "Seu celular agora receberá alertas sonoros e de segurança em tempo real.",
+              icon: "/logo.jpg"
+            });
+          }
         }
       } catch (err) {
         console.error("Erro ao solicitar permissão:", err);
@@ -1124,37 +1143,47 @@ export default function DashboardPage() {
     <div style={styles.dashboardContainer}>
 
       {/* Notification permission request banner */}
-      {typeof window !== "undefined" && "Notification" in window && notificationPermission === "default" && (
+      {typeof window !== "undefined" && notificationPermission !== "granted" && (
         <div style={{
-          backgroundColor: "#4f46e5",
+          background: "linear-gradient(90deg, #4f46e5 0%, #7c3aed 100%)",
           color: "#fff",
-          padding: "10px 16px",
-          textAlign: "center",
-          fontSize: "14px",
+          padding: "12px 16px",
+          fontSize: "13px",
           fontWeight: "600",
           display: "flex",
+          flexWrap: "wrap",
           alignItems: "center",
           justifyContent: "center",
-          gap: "12px",
-          boxShadow: "0 2px 4px rgba(0,0,0,0.15)",
+          gap: "10px",
+          boxShadow: "0 4px 15px rgba(79, 70, 229, 0.4)",
           zIndex: 9999
         }}>
-          <span>🔔 Ative as notificações no navegador para receber alertas sonoros e de segurança em tempo real.</span>
-          <button 
-            onClick={handleRequestNotificationPermission}
-            style={{
-              backgroundColor: "#fff",
-              color: "#4f46e5",
-              border: "none",
-              borderRadius: "4px",
-              padding: "4px 12px",
-              fontSize: "12px",
-              fontWeight: "bold",
-              cursor: "pointer"
-            }}
-          >
-            Ativar Notificações
-          </button>
+          <div style={{ display: "flex", alignItems: "center", gap: "8px" }}>
+            <span style={{ fontSize: "16px" }}>🔔</span>
+            <span>
+              {"Notification" in window 
+                ? "Ative os alertas no celular para receber notificações de segurança e alarme sonoro em tempo real!" 
+                : "No iPhone: Toque no ícone Compartilhar ⬆️ e selecione 'Adicionar à Tela de Início' para receber notificações instantâneas!"}
+            </span>
+          </div>
+          {"Notification" in window && (
+            <button 
+              onClick={handleRequestNotificationPermission}
+              style={{
+                backgroundColor: "#fff",
+                color: "#4f46e5",
+                border: "none",
+                borderRadius: "6px",
+                padding: "6px 14px",
+                fontSize: "12px",
+                fontWeight: "bold",
+                cursor: "pointer",
+                boxShadow: "0 2px 5px rgba(0,0,0,0.2)"
+              }}
+            >
+              Ativar Notificações no Celular
+            </button>
+          )}
         </div>
       )}
       {/* HEADER NAVBAR */}
