@@ -378,7 +378,7 @@ export default function DashboardPage() {
         if (vehiclesRes.ok) setVehicles(await vehiclesRes.json());
 
         // Billing and condo info for admins
-        if (userRole in { admin_condominio: 1, administradora: 1 }) {
+        if (["admin_condominio", "administradora"].includes(userRole)) {
           const condosRes = await fetch(`${getBackendUrl()}/api/condos/`, { headers });
           if (condosRes.ok) setCondos(await condosRes.json());
 
@@ -1218,7 +1218,7 @@ export default function DashboardPage() {
                 <span>Cadastros & Painel</span>
               </button>
 
-              {role in { admin_condominio: 1, administradora: 1 } && (
+              {["admin_condominio", "administradora"].includes(role) && (
                 <button 
                   onClick={() => handleTabClick("faturamento")} 
                   style={{...styles.sidebarBtn, ...(activeTab === "faturamento" ? styles.sidebarBtnActive : {})}}
@@ -1334,7 +1334,7 @@ export default function DashboardPage() {
                         cameraName={cam.name}
                       />
                     </div>
-                    {(role in { admin_condominio: 1, administradora: 1 } || role === "super_admin") && (
+                    {["admin_condominio", "administradora", "super_admin"].includes(role) && (
                       <div style={styles.streamFooter}>
                         <button 
                           onClick={() => {
