@@ -2556,14 +2556,11 @@ export default function DashboardPage() {
                           position: "relative", 
                           width: "100%", 
                           aspectRatio: (
-                            (cameras.find(c => c.id === selectedCameraForMonitoring)?.name && (
+                            cameras.find(c => c.id === selectedCameraForMonitoring)?.name && (
                               cameras.find(c => c.id === selectedCameraForMonitoring).name.toLowerCase().includes("girar") || 
                               cameras.find(c => c.id === selectedCameraForMonitoring).name.toLowerCase().includes("rotate") || 
                               cameras.find(c => c.id === selectedCameraForMonitoring).name.toLowerCase().includes("vertical")
-                            )) || (cameras.find(c => c.id === selectedCameraForMonitoring)?.rtsp_url && (
-                              cameras.find(c => c.id === selectedCameraForMonitoring).rtsp_url.toLowerCase().includes("4747") ||
-                              cameras.find(c => c.id === selectedCameraForMonitoring).rtsp_url.toLowerCase().includes("droidcam")
-                            ))
+                            )
                           ) ? "9/16" : "16/9", 
                           background: "#000", 
                           borderRadius: "8px", 

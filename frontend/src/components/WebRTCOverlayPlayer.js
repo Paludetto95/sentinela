@@ -29,14 +29,11 @@ export default function WebRTCOverlayPlayer({
   const [detections, setDetections] = useState([]);
   const [imgRetry, setImgRetry] = useState(0);
 
-  const isRotated = (cameraName && (
+  const isRotated = cameraName && (
     cameraName.toLowerCase().includes("girar") || 
     cameraName.toLowerCase().includes("rotate") || 
     cameraName.toLowerCase().includes("vertical")
-  )) || (rtspUrl && (
-    rtspUrl.toLowerCase().includes("4747") ||
-    rtspUrl.toLowerCase().includes("droidcam")
-  ));
+  );
   
   const [aspectRatio, setAspectRatio] = useState(isRotated ? "9/16" : "16/9");
   
