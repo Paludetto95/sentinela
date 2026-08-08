@@ -43,8 +43,8 @@ def register(
                 detail="Condomínio selecionado não existe."
             )
         tenant_id = condo.tenant_id
-        # For testing/free trial, users registering for a specific condo are active immediately
-        status_user = "active"
+        # Moradores começam com status pendente até serem aprovados pelo admin do condomínio
+        status_user = "pending"
         print(f"[PAYMENT EMAIL SIMULATION] Enviando link de pagamento (GRATUITO) para o e-mail: {user_in.email}")
     else:
         # Create a new tenant for self-service administrative users (Administradora / Admin Condominio)
