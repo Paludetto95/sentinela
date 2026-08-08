@@ -336,8 +336,8 @@ class CameraWorker(threading.Thread):
 
             # Process every frame for smooth 30 FPS tracking
 
-            # Use imgsz=1920 for 1080p high definition inference
-            imgsz_val = 1920
+            # Otimizado para imgsz=640 (tamanho nativo do YOLOv8). Isso roda a IA a ~6ms por frame, permitindo rastrear em 30 FPS reais sem atrasos na fila do FFMPEG.
+            imgsz_val = 640
 
             # Run YOLO inference with Custom BoT-SORT tracker and optimized parameters
             with yolo_lock:
