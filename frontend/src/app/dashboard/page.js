@@ -88,6 +88,8 @@ export default function DashboardPage() {
     }, 250);
   };
 
+  const monitoringCanvasRef = useRef(null);
+
 
   const [gridSize, setGridSize] = useState(4); // 1, 4, 9, 16
   const [selectedCondoFilter, setSelectedCondoFilter] = useState("");
@@ -791,8 +793,68 @@ export default function DashboardPage() {
       }
       
       triggerAISnapping(tempPoints);
-    }
   };
+
+  // Redesenha o canvas do morador garantindo que a proporção e resolução internas do canvas batam com as do vídeo
+  useEffect(() => {
+    const canvas = monitoringCanvasRef.current;
+    if (!canvas) return;
+    const ctx = canvas.getContext("2d");
+    const rect = canvas.getBoundingClientRect();
+    
+    canvas.width = rect.width;
+    canvas.height = rect.height;
+    
+    ctx.clearRect(0, 0, canvas.width, canvas.height);
+    
+    // Desenha o retângulo criado pelo usuário
+    if (tempPoints.length > 0) {
+      ctx.lineWidth = 3;
+      ctx.strokeStyle = "#10b981";
+      ctx.fillStyle = "rgba(16, 185, 129, 0.2)";
+      ctx.beginPath();
+      tempPoints.forEach((pt, idx) => {
+        const cx = pt.x * canvas.width;
+        const cy = pt.y * canvas.height;
+        if (idx === 0) ctx.moveTo(cx, cy);
+        else ctx.lineTo(cx, cy);
+      });
+      if (tempPoints.length === 4) ctx.closePath();
+      ctx.stroke();
+      if (tempPoints.length === 4) ctx.fill();
+      
+      // Desenha as âncoras brancas nos cantos
+      ctx.fillStyle = "#ffffff";
+      tempPoints.forEach((pt) => {
+        ctx.beginPath();
+        ctx.arc(pt.x * canvas.width, pt.y * canvas.height, 5, 0, 2 * Math.PI);
+        ctx.fill();
+      });
+    }
+
+    // Desenha a sugestão de Snapping da IA
+    if (showSnappingConfirm && snappedPoints.length === 4) {
+      ctx.lineWidth = 2;
+      ctx.strokeStyle = "#f59e0b";
+      ctx.fillStyle = "rgba(245, 158, 11, 0.15)";
+      ctx.setLineDash([6, 4]);
+      ctx.beginPath();
+      snappedPoints.forEach((pt, idx) => {
+        const cx = pt.x * canvas.width;
+        const cy = pt.y * canvas.height;
+        if (idx === 0) ctx.moveTo(cx, cy);
+        else ctx.lineTo(cx, cy);
+      });
+      ctx.closePath();
+      ctx.stroke();
+      ctx.fill();
+      ctx.setLineDash([]);
+
+      ctx.fillStyle = "#f59e0b";
+      ctx.font = "bold 12px sans-serif";
+      ctx.fillText("🤖 Sugestão da IA", snappedPoints[0].x * canvas.width + 4, snappedPoints[0].y * canvas.height - 6);
+    }
+  }, [tempPoints, snappedPoints, showSnappingConfirm]);
 
   const triggerAISnapping = async (points) => {
     if (!points || points.length !== 4) return;
@@ -2602,63 +2664,7 @@ export default function DashboardPage() {
                               cursor: "crosshair",
                               zIndex: 10
                             }}
-                            ref={(canvas) => {
-                              if (!canvas) return;
-                              const ctx = canvas.getContext("2d");
-                              const rect = canvas.getBoundingClientRect();
-                              canvas.width = rect.width;
-                              canvas.height = rect.height;
-                              ctx.clearRect(0, 0, canvas.width, canvas.height);
-                              
-                              // Draw user drawn rectangle
-                              if (tempPoints.length > 0) {
-                                ctx.lineWidth = 3;
-                                ctx.strokeStyle = "#10b981";
-                                ctx.fillStyle = "rgba(16, 185, 129, 0.2)";
-                                ctx.beginPath();
-                                tempPoints.forEach((pt, idx) => {
-                                  const cx = pt.x * canvas.width;
-                                  const cy = pt.y * canvas.height;
-                                  if (idx === 0) ctx.moveTo(cx, cy);
-                                  else ctx.lineTo(cx, cy);
-                                });
-                                if (tempPoints.length === 4) ctx.closePath();
-                                ctx.stroke();
-                                if (tempPoints.length === 4) ctx.fill();
-                                
-                                // Draw anchors
-                                ctx.fillStyle = "#ffffff";
-                                tempPoints.forEach((pt) => {
-                                  ctx.beginPath();
-                                  ctx.arc(pt.x * canvas.width, pt.y * canvas.height, 5, 0, 2 * Math.PI);
-                                  ctx.fill();
-                                });
-                              }
-
-                              // Draw AI suggested snapped rectangle
-                              if (showSnappingConfirm && snappedPoints.length === 4) {
-                                ctx.lineWidth = 2;
-                                ctx.strokeStyle = "#f59e0b";
-                                ctx.fillStyle = "rgba(245, 158, 11, 0.15)";
-                                ctx.setLineDash([6, 4]); // dashed line
-                                ctx.beginPath();
-                                snappedPoints.forEach((pt, idx) => {
-                                  const cx = pt.x * canvas.width;
-                                  const cy = pt.y * canvas.height;
-                                  if (idx === 0) ctx.moveTo(cx, cy);
-                                  else ctx.lineTo(cx, cy);
-                                });
-                                ctx.closePath();
-                                ctx.stroke();
-                                ctx.fill();
-                                ctx.setLineDash([]); // reset dash
-
-                                // Draw AI label
-                                ctx.fillStyle = "#f59e0b";
-                                ctx.font = "bold 12px sans-serif";
-                                ctx.fillText("🤖 Sugestão da IA", snappedPoints[0].x * canvas.width + 4, snappedPoints[0].y * canvas.height - 6);
-                              }
-                            }}
+                            ref={monitoringCanvasRef}
                           />
                           </WebRTCOverlayPlayer>
                         </div>
