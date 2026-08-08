@@ -42,6 +42,10 @@ export default function AuthPage() {
   const [tower, setTower] = useState("");
   
   const [condos, setCondos] = useState([]);
+  const [error, setError] = useState("");
+  const [success, setSuccess] = useState("");
+  const [loading, setLoading] = useState(false);
+
   const handleToggleMode = () => {
     setIsLogin(prev => !prev);
     setEmail("");
