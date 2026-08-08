@@ -2574,8 +2574,8 @@ export default function DashboardPage() {
                              zones={cameras.find(c => c.id === selectedCameraForMonitoring)?.zones || []}
                              rtspUrl={cameras.find(c => c.id === selectedCameraForMonitoring)?.rtsp_url}
                              cameraName={cameras.find(c => c.id === selectedCameraForMonitoring)?.name}
-                          />
-                          <canvas
+                          >
+                            <canvas
                             onMouseDown={(e) => handleStartDrawing(e.clientX, e.clientY, e.currentTarget)}
                             onMouseMove={(e) => handleMoveDrawing(e.clientX, e.clientY, e.currentTarget)}
                             onMouseUp={handleEndDrawing}
@@ -2660,6 +2660,7 @@ export default function DashboardPage() {
                               }
                             }}
                           />
+                          </WebRTCOverlayPlayer>
                         </div>
 
                         {showSnappingConfirm && (

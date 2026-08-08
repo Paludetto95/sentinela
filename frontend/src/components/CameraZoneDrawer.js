@@ -285,18 +285,19 @@ export default function CameraZoneDrawer({ cameraId, status, zones = [], onSave,
           showDetections={true}
           allowIgnore={true}
           cameraName={cameraName}
-        />
-        <canvas
-          ref={canvasRef}
-          onMouseDown={handleMouseDown}
-          onMouseMove={handleMouseMove}
-          onMouseUp={handleMouseUp}
-          onMouseLeave={handleMouseUp}
-          onTouchStart={handleTouchStart}
-          onTouchMove={handleTouchMove}
-          onTouchEnd={handleMouseUp}
-          style={styles.canvas}
-        />
+        >
+          <canvas
+            ref={canvasRef}
+            onMouseDown={handleMouseDown}
+            onMouseMove={handleMouseMove}
+            onMouseUp={handleMouseUp}
+            onMouseLeave={handleMouseUp}
+            onTouchStart={handleTouchStart}
+            onTouchMove={handleTouchMove}
+            onTouchEnd={handleMouseUp}
+            style={styles.canvas}
+          />
+        </WebRTCOverlayPlayer>
       </div>
 
       <div style={styles.form}>

@@ -20,7 +20,8 @@ export default function WebRTCOverlayPlayer({
   allowIgnore = false,
   rtspUrl = "",
   isFullscreen = false,
-  cameraName = ""
+  cameraName = "",
+  children
 }) {
   const videoRef = useRef(null);
   const pcRef = useRef(null);
@@ -729,6 +730,7 @@ export default function WebRTCOverlayPlayer({
           }}
         />
       )}
+      {children}
       </div>
 
       {/* Webcam overlay controls */}
