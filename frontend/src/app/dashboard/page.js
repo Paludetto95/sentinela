@@ -793,6 +793,7 @@ export default function DashboardPage() {
       }
       
       triggerAISnapping(tempPoints);
+    }
   };
 
   // Redesenha o canvas do morador garantindo que a proporção e resolução internas do canvas batam com as do vídeo
