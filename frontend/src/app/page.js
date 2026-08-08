@@ -42,9 +42,19 @@ export default function AuthPage() {
   const [tower, setTower] = useState("");
   
   const [condos, setCondos] = useState([]);
-  const [error, setError] = useState("");
-  const [success, setSuccess] = useState("");
-  const [loading, setLoading] = useState(false);
+  const handleToggleMode = () => {
+    setIsLogin(prev => !prev);
+    setEmail("");
+    setPassword("");
+    setName("");
+    setPhone("");
+    setCpf("");
+    setCondoId("");
+    setApartment("");
+    setTower("");
+    setError("");
+    setSuccess("");
+  };
 
   // Load condos list for registration dropdown
   useEffect(() => {
@@ -252,6 +262,7 @@ export default function AuthPage() {
               onChange={(e) => setPassword(e.target.value)}
               className="input-field"
               style={{ paddingLeft: "42px" }}
+              autoComplete={isLogin ? "current-password" : "new-password"}
             />
           </div>
 
@@ -322,7 +333,7 @@ export default function AuthPage() {
           <span style={styles.textMuted}>
             {isLogin ? "Novo morador?" : "Já possui cadastro?"}
           </span>
-          <button type="button" onClick={() => setIsLogin(!isLogin)} style={styles.btnToggle}>
+          <button type="button" onClick={handleToggleMode} style={styles.btnToggle}>
             {isLogin ? "Cadastrar Morador" : "Fazer Login"}
           </button>
         </div>
