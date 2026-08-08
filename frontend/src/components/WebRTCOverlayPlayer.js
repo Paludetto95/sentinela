@@ -473,7 +473,10 @@ export default function WebRTCOverlayPlayer({
   const fallbackUrl = `${backendUrl}/api/cameras/${streamId}/stream?token=${token || ""}&retry=${imgRetry}`;
 
   return (
-    <div style={styles.container}>
+    <div style={{
+      ...styles.container,
+      ...(allowIgnore ? { pointerEvents: "none", zIndex: 3 } : {})
+    }}>
       <div 
         style={{
           position: "relative",
@@ -483,7 +486,8 @@ export default function WebRTCOverlayPlayer({
           overflow: "hidden",
           transform: `translate(${pan.x}px, ${pan.y}px)`,
           cursor: isFullscreen ? (isDragging.current ? "grabbing" : "grab") : "default",
-          touchAction: isFullscreen ? "none" : "auto"
+          touchAction: isFullscreen ? "none" : "auto",
+          ...(allowIgnore ? { pointerEvents: "none" } : {})
         }}
         onMouseDown={isFullscreen ? (e) => handleStart(e.clientX, e.clientY) : undefined}
         onMouseMove={isFullscreen ? (e) => handleMove(e.clientX, e.clientY) : undefined}
@@ -680,7 +684,8 @@ export default function WebRTCOverlayPlayer({
                   display: "flex",
                   alignItems: "center",
                   justifyContent: "center",
-                  boxShadow: "0 1px 3px rgba(0,0,0,0.3)"
+                  boxShadow: "0 1px 3px rgba(0,0,0,0.3)",
+                  pointerEvents: "auto"
                 }}
                 title="Ignorar este objeto (Falso Positivo)"
               >
